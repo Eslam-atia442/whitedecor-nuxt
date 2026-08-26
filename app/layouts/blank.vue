@@ -1,0 +1,8 @@
+<template>
+  <div class="min-h-screen bg-surface text-ink">
+    <slot />
+  </div>
+</template>
+
+<script setup lang="ts">
+</script>
