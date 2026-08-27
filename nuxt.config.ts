@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import tailwindcss from '@tailwindcss/vite';
 
-const SITE_URL = process.env.NUXT_PUBLIC_SITE_URL || 'https://whitedecor.online';
+const SITE_URL = process.env.NUXT_PUBLIC_SITE_URL || 'https://dashboard.whitedecor.online';
 
 const privatePage = { ssr: false, robots: 'noindex, nofollow' as const };
 
