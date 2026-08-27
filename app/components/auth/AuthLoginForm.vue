@@ -33,6 +33,8 @@
 </template>
 
 <script setup lang="ts">
+import { safeRedirectPath } from '~/constants/route_access';
+
 const { login, isLoading, validationErrors, clearFieldError } = useAuthFlow();
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
@@ -65,7 +67,7 @@ const onSubmit = async () => {
     country_id: settingsStore.selectedCountry?.id || '66',
   });
   if (ok) {
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/';
+    const redirect = safeRedirectPath(route.query.redirect);
     await navigateTo(localize(redirect));
   }
 };

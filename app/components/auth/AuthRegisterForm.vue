@@ -37,10 +37,13 @@
 </template>
 
 <script setup lang="ts">
+import { safeRedirectPath } from '~/constants/route_access';
+
 const { register, isLoading, validationErrors, clearFieldError } = useAuthFlow();
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
-const { localize, push } = useLocalizedPath();
+const route = useRoute();
+const { localize } = useLocalizedPath();
 
 const name = ref('');
 const phone = ref('');
@@ -99,6 +102,6 @@ const onSubmit = async () => {
     password_confirmation: confirmPassword.value,
     country_id: settingsStore.selectedCountry?.id || '66',
   });
-  if (ok) await push('/');
+  if (ok) await navigateTo(localize(safeRedirectPath(route.query.redirect)));
 };
 </script>

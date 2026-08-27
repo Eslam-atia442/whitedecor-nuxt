@@ -26,7 +26,8 @@ const { handleNavClick } = useShellNavigation();
 const { cartBadgeCount, ordersBadgeCount } = useAppSessionSync();
 
 const isProductDetailPage = computed(() => {
-  return route.path.startsWith(localePath('/products') + '/') && Boolean(route.params.id);
+  if (route.meta.hideMobileNav) return true;
+  return String(route.name || '').includes('products-slug');
 });
 
 const isActive = (path: string) => {

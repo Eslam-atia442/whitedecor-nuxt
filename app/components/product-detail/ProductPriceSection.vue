@@ -24,7 +24,7 @@
       <UiDiscountBadge
         v-if="hasDiscount && discountPercent && discountPercent > 0"
         :percent="discountPercent || 0"
-        size="md"
+        size="lg"
       />
     </div>
 

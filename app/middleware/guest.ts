@@ -1,7 +1,7 @@
 export default defineNuxtRouteMiddleware(() => {
   const authStore = useAuthStore();
-  const localePath = useLocalePath();
+  const { localize } = useLocalizedPath();
   if (authStore.isAuthenticated) {
-    return navigateTo(localePath('/'));
+    return navigateTo(localize('/'), { replace: true });
   }
 });

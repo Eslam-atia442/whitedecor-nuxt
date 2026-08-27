@@ -88,6 +88,8 @@
 <script setup lang="ts">
 import { useCheckout } from '~/composables/useCheckout';
 
+definePageMeta({ middleware: 'auth' });
+
 const { t, locale } = useI18n();
 const { store, cartStore, initCheckout, nextStep, prevStep, promptConfirmation, executeOrder } = useCheckout();
 

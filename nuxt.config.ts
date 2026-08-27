@@ -54,9 +54,9 @@ export default defineNuxtConfig({
 
   colorMode: {
     classSuffix: '',
-    preference: 'system',
+    preference: 'light',
     fallback: 'light',
-    storageKey: 'wd_theme_mode',
+    storageKey: 'wd_theme',
   },
 
   css: ['~/assets/css/style.css', 'vue-sonner/style.css'],
