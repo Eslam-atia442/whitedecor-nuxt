@@ -14,7 +14,7 @@ export const useCheckout = () => {
   const addressStore = useAddressStore();
   const settingsStore = useSettingsStore();
   const api = useApi();
-  const { push } = useLocalizedPath();
+  const { push, localize } = useLocalizedPath();
 
   const getT = (key: string, fallback = ''): string => {
     try {
@@ -42,8 +42,7 @@ export const useCheckout = () => {
   const initCheckout = () => {
     if (!authStore.isAuthenticated) {
       toast.info(getT('auth_required_checkout', 'يرجى تسجيل الدخول أو إنشاء حساب لإتمام الطلب بسهولة'));
-      push('/register?redirect=/checkout');
-      return;
+      return navigateTo(localize('/register?redirect=/checkout'), { replace: true });
     }
 
     if (cartStore.isEmpty && !cartStore.isLoading) {

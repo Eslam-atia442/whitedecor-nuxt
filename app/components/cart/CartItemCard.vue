@@ -32,9 +32,7 @@
           <span class="font-bold text-ink" :class="{ 'text-gold': hasItemDiscount }">
             {{ formatPrice(priceInfo.effectivePrice) }}
           </span>
-          <span v-if="priceInfo.discountPercent > 0" class="bg-gold/15 text-gold text-[10px] font-black px-1.5 py-0.5 rounded">
-            -{{ priceInfo.discountPercent }}%
-          </span>
+          <UiDiscountBadge v-if="priceInfo.discountPercent > 0" :percent="priceInfo.discountPercent" size="sm" />
         </div>
 
         <div v-if="item.addons && item.addons.length > 0" class="flex flex-wrap gap-1.5 pt-1">

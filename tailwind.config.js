@@ -28,6 +28,7 @@ export default {
           secondary: 'rgb(var(--color-text-secondary-rgb) / <alpha-value>)',
         },
         coral: { DEFAULT: 'rgb(var(--color-coral-rgb) / <alpha-value>)' },
+        sale: { DEFAULT: 'rgb(var(--color-sale-rgb) / <alpha-value>)' },
         green: { DEFAULT: 'rgb(var(--color-green-rgb) / <alpha-value>)' },
       },
       borderRadius: {

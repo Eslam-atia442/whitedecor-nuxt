@@ -2,7 +2,6 @@
   <div
     class="product-card group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-mist bg-card shadow-subtle transition-all duration-500 hover:-translate-y-2 hover:border-gold/40 hover:shadow-hover"
   >
-    <!-- Image Media Box -->
     <div class="relative aspect-square w-full overflow-hidden bg-surface">
       <NuxtLink :to="href" class="block size-full">
         <NuxtImg
@@ -18,7 +17,14 @@
         </div>
       </NuxtLink>
 
-      <!-- Quick View Hover Overlay -->
+      <div
+        v-if="product.discount_end_at && hasDiscount"
+        class="absolute z-30"
+        :class="timerSize === 'lg' ? 'inset-x-2 top-2' : 'inset-x-1.5 top-1.5'"
+      >
+        <ProductCardTimer :end-at="product.discount_end_at" :size="timerSize" />
+      </div>
+
       <NuxtLink
         :to="href"
         class="absolute inset-0 z-10 flex items-center justify-center bg-navy/0 transition-all duration-500 group-hover:bg-navy/40 group-hover:backdrop-blur-[2px]"
@@ -32,23 +38,24 @@
       </NuxtLink>
 
       <!-- Badges Stack -->
-      <div class="absolute start-3 top-3 flex flex-col gap-1.5 pointer-events-none z-20">
-        <UiDiscountBadge v-if="hasDiscount" :percent="discountPercent" size="sm" />
+      <div
+        class="absolute start-3 flex flex-col gap-1.5 pointer-events-none z-20"
+        :class="hasFlashTimer ? (timerSize === 'lg' ? 'top-[5.75rem]' : 'top-11') : 'top-3'"
+      >
+        <UiDiscountBadge v-if="hasDiscount" :percent="discountPercent" size="md" />
         <UiBadge v-if="!isInStock" variant="mist" size="sm">
           {{ $t('out_of_stock', 'Out of Stock') }}
         </UiBadge>
       </div>
 
-      <!-- Flash Sale Live Counter -->
-      <div v-if="product.discount_end_at && hasDiscount" class="absolute bottom-0 inset-x-0 z-20">
-        <ProductCardTimer :end-at="product.discount_end_at" />
-      </div>
-
       <!-- Wishlist Heart Button -->
       <button
         type="button"
-        class="absolute end-3 top-3 flex size-9 items-center justify-center rounded-full bg-card/90 text-ink shadow-subtle backdrop-blur-md transition-all duration-300 hover:scale-115 hover:shadow-card active:scale-90 z-20"
-        :class="isFav ? 'text-coral ring-2 ring-coral/30' : 'hover:text-coral'"
+        class="absolute end-3 flex size-9 items-center justify-center rounded-full bg-card/90 text-ink shadow-subtle backdrop-blur-md transition-all duration-300 hover:scale-115 hover:shadow-card active:scale-90 z-30"
+        :class="[
+          isFav ? 'text-coral ring-2 ring-coral/30' : 'hover:text-coral',
+          hasFlashTimer ? (timerSize === 'lg' ? 'top-[5.75rem]' : 'top-11') : 'top-3',
+        ]"
         aria-label="Toggle favorite"
         @click.stop="toggleFav"
       >
@@ -112,9 +119,7 @@
                 <del class="text-[11px] text-ink-secondary/60 font-medium">
                   {{ formatPrice(product.price) }}
                 </del>
-                <span class="inline-flex items-center rounded bg-coral/10 dark:bg-coral/20 px-1.5 py-0.5 text-[10px] font-bold text-coral tabular-nums">
-                  -{{ discountPercent }}%
-                </span>
+                <UiDiscountBadge :percent="discountPercent" size="sm" />
               </template>
             </div>
           </div>
@@ -129,7 +134,12 @@ import { toast } from 'vue-sonner';
 import type { ProductDto } from '~/types/product';
 import { productPath } from '~/utils/catalog_paths';
 
-const props = defineProps<{ product: ProductDto }>();
+const props = withDefaults(defineProps<{
+  product: ProductDto;
+  timerSize?: 'sm' | 'lg';
+}>(), {
+  timerSize: 'sm',
+});
 const { localize } = useLocalizedPath();
 const href = computed(() => localize(productPath(props.product)));
 const { formatPrice, parsePrice } = usePriceFormatter();
@@ -145,6 +155,8 @@ const hasDiscount = computed(() => {
   const finalP = parsePrice(props.product.final_price);
   return isAct && finalP > 0 && finalP < original;
 });
+
+const hasFlashTimer = computed(() => Boolean(props.product.discount_end_at && hasDiscount.value));
 
 const effectivePrice = computed(() => hasDiscount.value ? props.product.final_price : props.product.price);
 

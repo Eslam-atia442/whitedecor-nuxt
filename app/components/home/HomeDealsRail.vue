@@ -1,9 +1,9 @@
 <template>
   <section v-if="visible.length" class="rounded-3xl bg-card p-4 shadow-card sm:p-6">
     <UiSectionHeader :title="title" :subtitle="subtitle" :to="to" />
-    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div v-for="product in visible" :key="product.id" class="h-full">
-        <ProductCard :product="product" />
+        <ProductCard :product="product" timer-size="lg" />
       </div>
     </div>
   </section>

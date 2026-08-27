@@ -19,7 +19,9 @@
         <ProductDealBanner
           v-if="hasActiveDiscount"
           :remaining-seconds="remainingSeconds"
-          :save-formatted="formatPrice(effectivePriceNumeric)"
+          :save-formatted="formatPrice(Math.max(0, Number(product.price) - effectivePriceNumeric))"
+          :was-formatted="formatPrice(product.price)"
+          :discount-percent="discountPercentage"
         />
         <ProductHeaderInfo :product="product" :is-in-stock="isInStock" />
         <ProductPriceSection
@@ -35,10 +37,10 @@
           :selected-ids="selectedAddonIds"
           @customize="isAddonsModalOpen = true"
         />
-        <div class="hidden items-center gap-4 border-t border-mist pt-4 lg:flex">
+        <div class="cart-bar-shadow hidden items-center gap-4 rounded-2xl border border-mist bg-card p-4 lg:flex">
           <UiQuantityStepper v-model="quantity" :min="1" :max="5" />
-          <UiButton variant="primary" size="lg" :disabled="!isInStock" :loading="isAddingToCart" class="flex-1" @click="promptAddToCart">
-            <span class="material-symbols-rounded text-xl text-gold">add_shopping_cart</span>
+          <UiButton variant="primary" size="lg" :disabled="!isInStock" :loading="isAddingToCart" class="cta-heartbeat flex-1 disabled:[animation:none]" @click="promptAddToCart">
+            <span class="material-symbols-rounded text-xl">add_shopping_cart</span>
             <span>{{ $t('add_to_cart') }} • {{ formatPrice(grandTotal) }}</span>
           </UiButton>
         </div>

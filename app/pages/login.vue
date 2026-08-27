@@ -3,6 +3,8 @@
 </template>
 
 <script setup lang="ts">
+import { safeRedirectPath } from '~/constants/route_access';
+
 definePageMeta({ layout: 'auth', middleware: 'guest' });
 
 const { t } = useI18n();
@@ -22,7 +24,7 @@ onMounted(async () => {
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
       country_id: '1',
     });
-    const redirect = (route.query.redirect as string) || '/profile';
+    const redirect = safeRedirectPath(route.query.redirect || '/profile');
     await navigateTo(localize(redirect));
   }
 });

@@ -1,4 +1,5 @@
 // composables/useCartActions.ts
+import { toast } from 'vue-sonner';
 import { useCartStore } from '~/stores/cart';
 import { useAuthStore } from '~/stores/auth';
 import type { ProductDto } from '~/types/product';
@@ -6,7 +7,8 @@ import type { ProductDto } from '~/types/product';
 export const useCartActions = () => {
   const store = useCartStore();
   const authStore = useAuthStore();
-  const { push } = useLocalizedPath();
+  const { push, localize } = useLocalizedPath();
+  const { t } = useI18n();
 
   const isClearModalOpen = ref(false);
 
@@ -40,7 +42,11 @@ export const useCartActions = () => {
   };
 
   const proceedToCheckout = () => {
-    push('/checkout');
+    if (!authStore.isAuthenticated) {
+      toast.info(t('auth_required_checkout'));
+      return navigateTo(localize('/register?redirect=/checkout'));
+    }
+    return push('/checkout');
   };
 
   return {

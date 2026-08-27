@@ -29,9 +29,7 @@
         <span class="block text-xs font-black text-ink" :class="{ 'text-gold': priceInfo.hasDiscount }">
           {{ formatPrice(itemTotalPrice) }}
         </span>
-        <span v-if="priceInfo.discountPercent > 0" class="bg-gold/15 text-gold text-[9px] font-black px-1 rounded">
-          -{{ priceInfo.discountPercent }}%
-        </span>
+        <UiDiscountBadge v-if="priceInfo.discountPercent > 0" :percent="priceInfo.discountPercent" size="sm" />
       </div>
     </div>
   </div>

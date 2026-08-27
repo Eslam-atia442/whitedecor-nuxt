@@ -22,5 +22,7 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ hideMobileNav: true, mobileBack: true });
+
 const { product, isLoading, isError, revealed, retry } = await useProductPage();
 </script>

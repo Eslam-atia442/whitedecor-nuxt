@@ -6,6 +6,18 @@
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
       <div class="flex min-w-0 items-center gap-3">
         <UiButton
+          v-if="showMobileBack"
+          variant="outline"
+          size="icon"
+          rounded="pill"
+          class="lg:hidden"
+          :aria-label="$t('back')"
+          @click="goBack"
+        >
+          <span class="material-symbols-rounded text-xl">{{ backIcon }}</span>
+        </UiButton>
+        <UiButton
+          v-else
           variant="outline"
           size="icon"
           rounded="pill"
@@ -38,4 +50,20 @@
 <script setup lang="ts">
 defineProps<{ elevated?: boolean }>();
 defineEmits<{ 'open-mobile-drawer': [] }>();
+
+const route = useRoute();
+const router = useRouter();
+const localePath = useLocalePath();
+const { locale } = useI18n();
+
+const showMobileBack = computed(() => Boolean(route.meta.mobileBack));
+const backIcon = computed(() => (locale.value === 'ar' ? 'arrow_forward' : 'arrow_back'));
+
+const goBack = () => {
+  if (router.options.history.state.back != null) {
+    router.back();
+    return;
+  }
+  router.push(localePath('/products'));
+};
 </script>

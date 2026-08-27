@@ -23,7 +23,7 @@
         <UiDiscountBadge
           v-if="hasDiscount && discountPercent && discountPercent > 0"
           :percent="discountPercent"
-          size="md"
+          size="lg"
         />
         <UiBadge v-if="!isInStock" variant="mist" size="md">
           {{ $t('out_of_stock') }}
