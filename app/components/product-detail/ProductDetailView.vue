@@ -96,12 +96,15 @@
 </template>
 
 <script setup lang="ts">
+import type { ProductDto } from '~/types/product';
 import { productPath } from '~/utils/catalog_paths';
+
+const props = defineProps<{ product: ProductDto }>();
 
 const { t } = useI18n();
 const { formatPrice } = usePriceFormatter();
 const detail = useProductDetail();
-const product = computed(() => detail.product.value!);
+const product = computed(() => props.product);
 const {
   relatedProducts, allImages, currentImage, activeImageIndex, selectedAddonIds, quantity,
   remainingSeconds, isAddingToCart, isInStock, effectivePriceNumeric, hasActiveDiscount,
@@ -113,7 +116,7 @@ const {
 const breadcrumbs = computed(() => [
   { label: t('home'), to: '/' },
   { label: t('all_products'), to: '/products' },
-  ...(product.value.category ? [{ label: product.value.category.name, to: `/categories/${product.value.category.slug}` }] : []),
-  { label: product.value.name || '', to: productPath(product.value), isCurrent: true },
+  ...(product.value?.category ? [{ label: product.value.category.name, to: `/categories/${product.value.category.slug}` }] : []),
+  { label: product.value?.name || '', to: productPath(product.value), isCurrent: true },
 ]);
 </script>

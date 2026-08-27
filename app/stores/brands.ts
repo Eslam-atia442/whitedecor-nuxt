@@ -12,10 +12,8 @@ export const useBrandsStore = defineStore('brands', () => {
   const selectedBrand = ref<BrandDto | null>(null);
   const lastFetchedAt = ref<number | null>(null);
 
-  // Cache TTL: 15 minutes (900,000 ms)
-  const CACHE_TTL = 15 * 60 * 1000;
-
   // --- GETTERS ---
+  const isPending = computed(() => status.value === 'idle' || status.value === 'loading');
   const isLoading = computed(() => status.value === 'loading');
   const isSuccess = computed(() => status.value === 'success');
   const isError = computed(() => status.value === 'error');
@@ -30,19 +28,21 @@ export const useBrandsStore = defineStore('brands', () => {
   });
 
   // --- ACTIONS ---
-  const clearCache = () => {
-    lastFetchedAt.value = null;
+  const beginFetch = () => {
     brands.value = [];
+    selectedBrand.value = null;
+    lastFetchedAt.value = null;
+    errorMessage.value = null;
+    status.value = 'loading';
   };
 
-  const fetchBrands = async (force = false): Promise<BrandDto[]> => {
-    const isCacheValid = lastFetchedAt.value && Date.now() - lastFetchedAt.value < CACHE_TTL;
-    if (brands.value.length > 0 && isCacheValid && !force) {
-      return brands.value;
-    }
+  const clearCache = () => {
+    beginFetch();
+    status.value = 'idle';
+  };
 
-    status.value = 'loading';
-    errorMessage.value = null;
+  const fetchBrands = async (_force = false): Promise<BrandDto[]> => {
+    beginFetch();
 
     try {
       const api = useApi();
@@ -82,6 +82,7 @@ export const useBrandsStore = defineStore('brands', () => {
     errorMessage,
     selectedBrand,
     lastFetchedAt,
+    isPending,
     isLoading,
     isSuccess,
     isError,
@@ -89,6 +90,7 @@ export const useBrandsStore = defineStore('brands', () => {
     fetchBrands,
     getBrandById,
     selectBrand,
+    beginFetch,
     clearCache,
   };
 });

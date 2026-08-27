@@ -12,10 +12,8 @@ export const useCategoriesStore = defineStore('categories', () => {
   const selectedCategory = ref<CategoryDto | null>(null);
   const lastFetchedAt = ref<number | null>(null);
 
-  // Cache TTL: 10 minutes (600,000 ms)
-  const CACHE_TTL = 10 * 60 * 1000;
-
   // --- GETTERS ---
+  const isPending = computed(() => status.value === 'idle' || status.value === 'loading');
   const isLoading = computed(() => status.value === 'loading');
   const isSuccess = computed(() => status.value === 'success');
   const isError = computed(() => status.value === 'error');
@@ -40,19 +38,21 @@ export const useCategoriesStore = defineStore('categories', () => {
   });
 
   // --- ACTIONS ---
-  const clearCache = () => {
-    lastFetchedAt.value = null;
+  const beginFetch = () => {
     categories.value = [];
+    selectedCategory.value = null;
+    lastFetchedAt.value = null;
+    errorMessage.value = null;
+    status.value = 'loading';
   };
 
-  const fetchCategories = async (params: CategoryQueryParams = {}, force = false): Promise<CategoryDto[]> => {
-    const isCacheValid = lastFetchedAt.value && Date.now() - lastFetchedAt.value < CACHE_TTL;
-    if (categories.value.length > 0 && isCacheValid && !force && !params.keyword) {
-      return categories.value;
-    }
+  const clearCache = () => {
+    beginFetch();
+    status.value = 'idle';
+  };
 
-    status.value = 'loading';
-    errorMessage.value = null;
+  const fetchCategories = async (params: CategoryQueryParams = {}, _force = false): Promise<CategoryDto[]> => {
+    beginFetch();
 
     try {
       const api = useApi();
@@ -102,6 +102,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     errorMessage,
     selectedCategory,
     lastFetchedAt,
+    isPending,
     isLoading,
     isSuccess,
     isError,
@@ -111,6 +112,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     getCategoryBySlug,
     getCategoryById,
     selectCategory,
+    beginFetch,
     clearCache,
   };
 });

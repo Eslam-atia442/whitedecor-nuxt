@@ -34,6 +34,7 @@ export const useProductsStore = defineStore('products', () => {
   });
 
   // --- GETTERS ---
+  const isPending = computed(() => status.value === 'idle' || status.value === 'loading');
   const isLoading = computed(() => status.value === 'loading');
   const isSuccess = computed(() => status.value === 'success');
   const isError = computed(() => status.value === 'error');
@@ -52,16 +53,24 @@ export const useProductsStore = defineStore('products', () => {
   });
 
   // --- ACTIONS ---
-  const clearCache = () => {
+  const emptyPagination = (): ProductPaginationMeta => ({
+    current_page: 1,
+    last_page: 1,
+    per_page: 15,
+    total: 0,
+    has_more: false,
+  });
+
+  const beginFetch = () => {
     products.value = [];
+    pagination.value = emptyPagination();
+    errorMessage.value = null;
+    status.value = 'loading';
+  };
+
+  const clearCache = () => {
+    beginFetch();
     status.value = 'idle';
-    pagination.value = {
-      current_page: 1,
-      last_page: 1,
-      per_page: 15,
-      total: 0,
-      has_more: false,
-    };
   };
 
   const fetchProducts = async (newFilters?: Partial<ProductFilterParams>, append = false) => {
@@ -72,8 +81,7 @@ export const useProductsStore = defineStore('products', () => {
     if (append) {
       isLoadingMore.value = true;
     } else {
-      products.value = [];
-      status.value = 'loading';
+      beginFetch();
       filters.value.page = 1;
     }
     errorMessage.value = null;
@@ -242,6 +250,7 @@ export const useProductsStore = defineStore('products', () => {
     errorMessage,
     pagination,
     filters,
+    isPending,
     isLoading,
     isSuccess,
     isError,
@@ -251,6 +260,7 @@ export const useProductsStore = defineStore('products', () => {
     fetchProducts,
     loadMore,
     resetFilters,
+    beginFetch,
     clearCache,
   };
 });

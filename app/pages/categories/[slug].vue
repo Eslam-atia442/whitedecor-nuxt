@@ -1,5 +1,7 @@
 <template>
-  <CategoryPageSkeleton v-if="isLoadingCategory && !category" />
+  <div>
+    <UiLoadingOverlay :is-open="isPendingCategory || isPendingProducts" />
+    <CategoryPageSkeleton v-if="isPendingCategory" />
 
   <div v-else-if="category" class="space-y-8">
     <UiBreadcrumbs :items="breadcrumbs" />
@@ -19,7 +21,15 @@
         </span>
       </div>
 
-      <ProductSkeletonGrid v-if="isLoading" />
+      <ProductSkeletonGrid v-if="isPendingProducts" />
+      <UiEmptyState
+        v-else-if="isError"
+        icon="inventory_2"
+        :title="$t('no_products_found')"
+        :description="$t('no_products_filter_subtitle')"
+        :action-label="$t('retry')"
+        @action="retry"
+      />
       <UiEmptyState
         v-else-if="!products.length"
         icon="inventory_2"
@@ -44,10 +54,11 @@
     :action-label="$t('categories')"
     @action="push('/categories')"
   />
+  </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ keepalive: true });
+import { reuseHydrationPayload } from '~/utils/hydration';
 
 const route = useRoute();
 const slug = computed(() => route.params.slug as string);
@@ -56,12 +67,18 @@ const { push } = useLocalizedPath();
 
 const categoriesStore = useCategoriesStore();
 const productsStore = useProductsStore();
-const { products, isLoading, isLoadingMore, hasMore, totalProducts, loadMore } = useProducts();
+const { products, isPending: isPendingProducts, isError, isLoadingMore, hasMore, totalProducts, loadMore } = useProducts();
 
-const isLoadingCategory = computed(() => categoriesStore.isLoading);
+const isPendingCategory = computed(() => categoriesStore.isPending && !categoriesStore.getCategoryBySlug(slug.value));
 const category = computed(() => categoriesStore.getCategoryBySlug(slug.value));
 const selectedSubcategory = ref<string | undefined>(undefined);
 const { breadcrumbs } = useCategoryNavigation(category);
+const categorySeo = useCatalogSeo().forCategory(category);
+
+useSeo({
+  title: categorySeo.title,
+  description: categorySeo.description,
+});
 
 const loadCategoryData = async () => {
   if (!categoriesStore.categories.length) {
@@ -76,19 +93,14 @@ const loadCategoryData = async () => {
   return true;
 };
 
-await useAsyncData(
+const query = useAsyncData(
   () => `category-${slug.value}-${locale.value}`,
   loadCategoryData,
-  { watch: [locale, slug] }
+  { lazy: true, watch: [locale, slug], getCachedData: reuseHydrationPayload },
 );
-
-if (categoriesStore.rootCategories.length > 0 && !category.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Category not found' });
-}
 
 watch(slug, () => {
   selectedSubcategory.value = undefined;
-  loadCategoryData();
 });
 
 const onSelectSubcategory = (subSlug?: string) => {
@@ -102,9 +114,12 @@ const onSelectSubcategory = (subSlug?: string) => {
   });
 };
 
-const categorySeo = useCatalogSeo().forCategory(category);
-useSeo({
-  title: categorySeo.title,
-  description: categorySeo.description,
-});
+const retry = () => query.refresh();
+
+if (import.meta.server) {
+  await query;
+  if (categoriesStore.isSuccess && !category.value) {
+    throw createError({ statusCode: 404, statusMessage: 'Category not found' });
+  }
+}
 </script>

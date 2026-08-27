@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-8">
+    <UiLoadingOverlay :is-open="isPending" />
     <UiBreadcrumbs :items="breadcrumbs" />
 
-    <!-- Page Header & Live Search Bar -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-mist pb-6">
       <div class="space-y-1.5">
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-ink">
@@ -15,19 +15,14 @@
       <CategorySearchBar v-model="searchKeyword" class="w-full md:w-80" />
     </div>
 
-    <!-- Skeleton Loading State -->
-    <CategorySkeletonGrid v-if="isLoading && !filteredCategories.length" />
-
-    <!-- Error State -->
+    <CategorySkeletonGrid v-if="isPending" />
     <UiEmptyState
-      v-else-if="isError && !filteredCategories.length"
+      v-else-if="isError"
       icon="error"
       :title="errorMessage || $t('errors.general', 'An error occurred')"
       :action-label="$t('retry')"
-      @action="fetchCategories({}, true)"
+      @action="retry"
     />
-
-    <!-- Empty State -->
     <UiEmptyState
       v-else-if="!filteredCategories.length"
       icon="search_off"
@@ -36,8 +31,6 @@
       :action-label="$t('clear_filters')"
       @action="clearSearch"
     />
-
-    <!-- Categories Grid -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <CategoryGridCard
         v-for="cat in filteredCategories"
@@ -49,22 +42,19 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ keepalive: true });
+import { reuseHydrationPayload } from '~/utils/hydration';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const {
   filteredCategories,
   searchKeyword,
-  isLoading,
+  isPending,
   isError,
   errorMessage,
   fetchCategories,
   clearSearch,
 } = useCategories();
-
 const { breadcrumbs } = useCategoryNavigation();
-
-await useAsyncData('categories-catalog', () => fetchCategories({ roots: 1, embed: 'children' }));
 
 useSeo({
   title: t('categories'),
@@ -77,4 +67,16 @@ useSchemaOrg([
     name: t('categories'),
   },
 ]);
+
+const query = useAsyncData(
+  () => `categories-catalog-${locale.value}`,
+  () => fetchCategories({ roots: 1, embed: 'children' }),
+  { lazy: true, watch: [locale], getCachedData: reuseHydrationPayload },
+);
+
+const retry = () => query.refresh();
+
+if (import.meta.server) {
+  await query;
+}
 </script>

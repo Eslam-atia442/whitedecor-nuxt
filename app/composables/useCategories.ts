@@ -1,8 +1,6 @@
 // composables/useCategories.ts
 // [FLUTTER CONCEPT]: Business logic controller bridging UI components with Pinia Store
 
-import type { CategoryDto } from '~/types/category';
-
 export const useCategories = () => {
   const store = useCategoriesStore();
   const searchKeyword = ref('');
@@ -34,6 +32,7 @@ export const useCategories = () => {
     filteredCategories,
     searchKeyword,
     isLoading: computed(() => store.isLoading),
+    isPending: computed(() => store.isPending),
     isError: computed(() => store.isError),
     errorMessage: computed(() => store.errorMessage),
     fetchCategories: store.fetchCategories,

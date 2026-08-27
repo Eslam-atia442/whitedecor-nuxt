@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6">
+    <UiLoadingOverlay :is-open="hasQuery && isPending" />
     <UiBreadcrumbs :items="breadcrumbs" />
     <ProductSearchBar
       id="search-page-input"
@@ -24,7 +25,15 @@
         <ProductSortSelect :model-value="filters.order" @update:model-value="setSortOption" />
       </div>
 
-      <ProductSkeletonGrid v-if="isLoading" />
+      <ProductSkeletonGrid v-if="isPending" />
+      <UiEmptyState
+        v-else-if="isError"
+        icon="search_off"
+        :title="$t('no_products_found')"
+        :description="$t('no_products_filter_subtitle')"
+        :action-label="$t('retry')"
+        @action="retry"
+      />
       <UiEmptyState
         v-else-if="!products.length"
         icon="search_off"
@@ -51,15 +60,14 @@
 
 <script setup lang="ts">
 import { watchDebounced } from '@vueuse/core';
-
-definePageMeta({ keepalive: true });
+import { reuseHydrationPayload } from '~/utils/hydration';
 
 const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const localePath = useLocalePath();
 const store = useProductsStore();
-const { products, isLoading, isLoadingMore, hasMore, totalProducts, loadMore } = useProducts();
+const { products, isPending, isError, isLoadingMore, hasMore, totalProducts, loadMore } = useProducts();
 const { filters, setSortOption } = useProductFilter();
 const { terms: recentTerms, add: addRecent, clear: clearRecent } = useRecentSearches();
 const query = ref(String(route.query.search || route.query.keyword || ''));
@@ -70,6 +78,8 @@ const breadcrumbs = computed(() => [
   { label: t('home'), to: localePath('/') },
   { label: t('search_page_title'), to: localePath('/search'), isCurrent: true },
 ]);
+
+useSeo({ title: t('search_page_title'), noIndex: true });
 
 const applySearch = (value: string, persist = false) => {
   const term = value.trim();
@@ -102,15 +112,19 @@ const selectRecent = (term: string) => applySearch(term, true);
 
 watchDebounced(query, (value) => applySearch(value), { debounce: 400 });
 
-await useAsyncData(
+const catalogQuery = useAsyncData(
   () => `search-catalog-${locale.value}-${String(route.query.search || '')}`,
   async () => {
     appliedTerm = null;
     applySearch(String(route.query.search || route.query.keyword || ''));
     return true;
   },
-  { watch: [locale] },
+  { lazy: true, watch: [locale], getCachedData: reuseHydrationPayload },
 );
 
-useSeo({ title: t('search_page_title'), noIndex: true });
+const retry = () => catalogQuery.refresh();
+
+if (import.meta.server) {
+  await catalogQuery;
+}
 </script>

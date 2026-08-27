@@ -16,8 +16,8 @@ export const useHomeStore = defineStore('home', () => {
   const status = ref<HomeStatus>('idle');
   const errorMessage = ref<string | null>(null);
   const lastFetchedAt = ref<number | null>(null);
-  const CACHE_TTL = 5 * 60 * 1000;
 
+  const isPending = computed(() => status.value === 'idle' || status.value === 'loading');
   const isLoading = computed(() => status.value === 'loading');
   const isError = computed(() => status.value === 'error');
   const isSuccess = computed(() => status.value === 'success');
@@ -37,22 +37,23 @@ export const useHomeStore = defineStore('home', () => {
     return unwrapList<T>(response);
   };
 
-  const clearCache = () => {
+  const beginFetch = () => {
     sliders.value = [];
     newest.value = [];
     discounted.value = [];
     topSold.value = [];
     lastFetchedAt.value = null;
-    status.value = 'idle';
     errorMessage.value = null;
+    status.value = 'loading';
   };
 
-  const fetchHomeData = async (force = false) => {
-    const isCacheValid = lastFetchedAt.value && Date.now() - lastFetchedAt.value < CACHE_TTL;
-    if (!force && isCacheValid && status.value === 'success') return;
+  const clearCache = () => {
+    beginFetch();
+    status.value = 'idle';
+  };
 
-    status.value = 'loading';
-    errorMessage.value = null;
+  const fetchHomeData = async (_force = false) => {
+    beginFetch();
 
     const results = await Promise.allSettled([
       fetchList<SliderDto>(API_ENDPOINTS.CATALOG.SLIDERS, { active: true }),
@@ -85,12 +86,14 @@ export const useHomeStore = defineStore('home', () => {
     topSold,
     status,
     errorMessage,
+    isPending,
     isLoading,
     isError,
     isSuccess,
     hasProducts,
     isEmpty,
     fetchHomeData,
+    beginFetch,
     clearCache,
   };
 });

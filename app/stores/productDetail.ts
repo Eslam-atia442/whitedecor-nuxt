@@ -17,6 +17,7 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   let timerId: ReturnType<typeof setInterval> | null = null;
 
   // --- COMPUTED PROPERTIES ---
+  const isPending = computed(() => status.value === 'idle' || status.value === 'loading');
   const isLoading = computed(() => status.value === 'loading');
   const isSuccess = computed(() => status.value === 'success');
   const isError = computed(() => status.value === 'error');
@@ -97,11 +98,28 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   });
 
   // --- ACTIONS ---
-  const clearCache = () => {
+  const beginFetch = () => {
     product.value = null;
     relatedProducts.value = [];
+    activeImageIndex.value = 0;
+    selectedAddonIds.value = [];
+    quantity.value = 1;
+    remainingSeconds.value = null;
+    errorMessage.value = null;
     stopDealCountdown();
+    status.value = 'loading';
+  };
+
+  const clearCache = () => {
+    beginFetch();
     status.value = 'idle';
+  };
+
+  const hydrateProduct = (data: ProductDto | null | undefined) => {
+    if (!data) return;
+    product.value = data;
+    status.value = 'success';
+    errorMessage.value = null;
   };
 
   const startDealCountdown = (endAt?: string | null) => {
@@ -150,27 +168,14 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   };
 
   const fetchProductDetail = async (identifier: string | number) => {
-    product.value = null;
-    status.value = 'loading';
-    errorMessage.value = null;
-    activeImageIndex.value = 0;
-    selectedAddonIds.value = [];
-    quantity.value = 1;
+    beginFetch();
 
     try {
       const api = useApi();
       const response = await api.get<any>(`/api/v1/products/${identifier}`);
       const raw = response as any;
-      const data = raw?.data?.data || raw?.data || raw;
-      product.value = data as ProductDto;
-
-      if (product.value?.discount_end_at && hasActiveDiscount.value) {
-        startDealCountdown(product.value.discount_end_at);
-      } else {
-        stopDealCountdown();
-      }
-
-      status.value = 'success';
+      const data = (raw?.data?.data || raw?.data || raw) as ProductDto;
+      hydrateProduct(data);
 
       if (import.meta.client && product.value?.category?.id) {
         fetchRelatedProducts(product.value.category.id);
@@ -179,6 +184,7 @@ export const useProductDetailStore = defineStore('productDetail', () => {
       return product.value;
     } catch (err: unknown) {
       status.value = 'error';
+      product.value = null;
       const normalized = err as { message?: string; statusCode?: number };
       errorMessage.value = normalized.message || 'Failed to fetch product details';
       if (normalized.statusCode === 404) return null;
@@ -221,6 +227,7 @@ export const useProductDetailStore = defineStore('productDetail', () => {
     remainingSeconds,
     status,
     errorMessage,
+    isPending,
     isLoading,
     isSuccess,
     isError,
@@ -239,8 +246,10 @@ export const useProductDetailStore = defineStore('productDetail', () => {
     setQuantity,
     fetchProductDetail,
     fetchRelatedProducts,
+    hydrateProduct,
     startDealCountdown,
     stopDealCountdown,
+    beginFetch,
     clearCache,
   };
 });

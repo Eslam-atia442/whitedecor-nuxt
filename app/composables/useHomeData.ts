@@ -1,12 +1,20 @@
 // [FLUTTER CONCEPT]: HomeScreen initState fetching categories + products + banners
 
-export const useHomeData = () => {
+import { reuseHydrationPayload } from '~/utils/hydration';
+
+export const useHomeData = async () => {
   const homeStore = useHomeStore();
   const categoriesStore = useCategoriesStore();
   const brandsStore = useBrandsStore();
   const { locale } = useI18n();
+  const { homeTitle, homeDescription } = useCatalogSeo();
 
-  const { pending, error, refresh } = useAsyncData(
+  useSeo({
+    title: homeTitle,
+    description: homeDescription,
+  });
+
+  const query = useAsyncData(
     () => `home-feed-${locale.value}`,
     async () => {
       await Promise.allSettled([
@@ -16,24 +24,25 @@ export const useHomeData = () => {
       ]);
       return true;
     },
-    { watch: [locale] },
+    {
+      lazy: true,
+      watch: [locale],
+      getCachedData: reuseHydrationPayload,
+    },
   );
 
-  const isLoading = computed(() => pending.value || homeStore.isLoading);
-  const isError = computed(() => Boolean(error.value) || homeStore.isError);
+  const isPending = computed(() => query.pending.value || homeStore.isPending);
+  const isError = computed(() => Boolean(query.error.value) || homeStore.isError);
   const isEmpty = computed(() => homeStore.isEmpty && categoriesStore.rootCategories.length === 0);
-  const isReady = computed(() => homeStore.isSuccess && !isLoading.value);
 
   const retry = async () => {
-    homeStore.clearCache();
-    await refresh();
+    homeStore.beginFetch();
+    await query.refresh();
   };
 
-  const { homeTitle, homeDescription } = useCatalogSeo();
-  useSeo({
-    title: homeTitle,
-    description: homeDescription,
-  });
+  if (import.meta.server) {
+    await query;
+  }
 
   return {
     sliders: computed(() => homeStore.sliders),
@@ -42,10 +51,9 @@ export const useHomeData = () => {
     topSold: computed(() => homeStore.topSold),
     categories: computed(() => categoriesStore.rootCategories),
     brands: computed(() => brandsStore.brands),
-    isLoading,
+    isPending,
     isError,
     isEmpty,
-    isReady,
     retry,
   };
 };

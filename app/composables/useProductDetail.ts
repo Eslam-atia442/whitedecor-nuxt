@@ -13,6 +13,14 @@ export const useProductDetail = () => {
   const isAddToCartConfirmModalOpen = ref(false);
   const isAddToCartSuccessModalOpen = ref(false);
 
+  const startCountdown = () => {
+    if (store.product?.discount_end_at && store.hasActiveDiscount) {
+      store.startDealCountdown(store.product.discount_end_at);
+    } else {
+      store.stopDealCountdown();
+    }
+  };
+
   const isFavorite = computed(() => {
     return store.product ? wishlistStore.isFavorite(store.product.id) : false;
   });
@@ -45,6 +53,10 @@ export const useProductDetail = () => {
       isAddToCartSuccessModalOpen.value = true;
     }
   };
+
+  onMounted(() => {
+    startCountdown();
+  });
 
   onUnmounted(() => {
     store.stopDealCountdown();

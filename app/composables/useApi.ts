@@ -48,7 +48,7 @@ export const useApi = () => {
       Accept: 'application/json',
       'Accept-Language': currentLocale,
       Cookie: `lang=${currentLocale}`,
-      Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Africa/Cairo',
+      Timezone: 'Africa/Cairo',
       ...(options.headers as Record<string, string>),
     };
 

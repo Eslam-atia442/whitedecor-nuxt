@@ -1,5 +1,7 @@
 import { productPath, isNumericParam } from '~/utils/catalog_paths';
+import { reuseHydrationPayload } from '~/utils/hydration';
 import { buildBreadcrumbNode, buildProductNode, useJsonLd, useSchemaIds, useSiteSchemaNodes } from '~/composables/useJsonLd';
+import type { ProductDto } from '~/types/product';
 
 export const useProductPage = async () => {
   const route = useRoute();
@@ -10,7 +12,7 @@ export const useProductPage = async () => {
   const seoApi = useCatalogSeo();
   const ids = useSchemaIds();
   const siteNodes = useSiteSchemaNodes();
-  const revealed = ref(false);
+  const revealed = ref(true);
   let revealFrame = 0;
 
   const productQuery = useAsyncData(
@@ -22,19 +24,33 @@ export const useProductPage = async () => {
         return null;
       }
     },
-    { lazy: true, watch: [slug, locale] },
+    {
+      lazy: true,
+      watch: [slug, locale],
+      getCachedData: reuseHydrationPayload,
+    },
+  );
+
+  watch(
+    () => productQuery.data.value,
+    (data) => {
+      if (data) store.hydrateProduct(data as ProductDto);
+    },
+    { immediate: true },
   );
 
   const current = computed(() => {
-    const product = productQuery.data.value || store.product;
+    const product = store.product;
     if (!product) return null;
     const key = slug.value;
     if (String(product.slug) === key || String(product.id) === key) return product;
     return null;
   });
 
-  const isLoading = computed(() => productQuery.pending.value || store.isLoading || (!current.value && !store.isError));
-  const isError = computed(() => !isLoading.value && (store.isError || !current.value));
+  const isPending = computed(() =>
+    productQuery.pending.value || store.isPending || (!current.value && !store.isError),
+  );
+  const isError = computed(() => !isPending.value && (store.isError || !current.value));
 
   const seo = seoApi.forProduct(current);
   const pageUrl = computed(() => ids.absolute(localePath(productPath(current.value || { id: slug.value }))));
@@ -98,14 +114,18 @@ export const useProductPage = async () => {
     });
   };
 
-  watch(current, async (product) => {
+  watch(current, async (product, previous) => {
     if (!product) {
-      revealed.value = false;
+      revealed.value = true;
       return;
     }
     await redirectToSlug();
-    await nextTick();
-    playReveal();
+    if (previous) {
+      await nextTick();
+      playReveal();
+    } else {
+      revealed.value = true;
+    }
   });
 
   onUnmounted(() => cancelAnimationFrame(revealFrame));
@@ -116,17 +136,16 @@ export const useProductPage = async () => {
       throw createError({ statusCode: 404, statusMessage: 'Product not found' });
     }
     await redirectToSlug();
-    revealed.value = true;
   }
 
   const retry = async () => {
-    store.clearCache();
+    store.beginFetch();
     await productQuery.refresh();
   };
 
   return {
     product: current,
-    isLoading,
+    isPending,
     isError,
     revealed,
     retry,

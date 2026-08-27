@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6">
+    <UiLoadingOverlay :is-open="isPending" />
     <UiBreadcrumbs :items="breadcrumbs" />
 
     <!-- Top Bar: Title & Controls -->
@@ -73,9 +74,15 @@
 
       <!-- Catalog Grid Column -->
       <div class="lg:col-span-3 space-y-6">
-        <!-- Always show Skeleton Grid when loading fresh data -->
-        <ProductSkeletonGrid v-if="showSkeleton" />
-
+        <ProductSkeletonGrid v-if="isPending" />
+        <UiEmptyState
+          v-else-if="isError"
+          icon="search_off"
+          :title="$t('no_products_found')"
+          :description="$t('no_products_filter_subtitle')"
+          :action-label="$t('retry')"
+          @action="retry"
+        />
         <UiEmptyState
           v-else-if="!products.length"
           icon="search_off"
@@ -84,7 +91,6 @@
           :action-label="$t('clear_filters')"
           @action="clearAllFilters"
         />
-
         <ProductGrid
           v-else
           :products="products"
@@ -115,12 +121,22 @@
 
 <script setup lang="ts">
 import { watchDebounced } from '@vueuse/core';
-
-definePageMeta({ keepalive: true });
+import { reuseHydrationPayload } from '~/utils/hydration';
 
 const { t, locale } = useI18n();
 const route = useRoute();
-const { products, isLoading, isLoadingMore, hasMore, totalProducts, categories, brands, loadMore, initCatalog } = useProducts();
+const {
+  products,
+  isPending: isStorePending,
+  isError,
+  isLoadingMore,
+  hasMore,
+  totalProducts,
+  categories,
+  brands,
+  loadMore,
+  initCatalog,
+} = useProducts();
 const {
   filters,
   activeFiltersCount,
@@ -136,19 +152,17 @@ const {
 } = useProductFilter();
 
 const isMobileFilterOpen = ref(false);
-const isMounted = ref(false);
 const searchQuery = ref(String(route.query.search || route.query.keyword || ''));
-
-onMounted(() => {
-  isMounted.value = true;
-});
-
-const isFilterDisabled = computed(() => isMounted.value && showSkeleton.value);
 
 const breadcrumbs = computed(() => [
   { label: t('home', 'Home'), to: '/' },
   { label: t('all_products', 'Products'), to: '/products', isCurrent: true },
 ]);
+
+useSeo({
+  title: t('all_products'),
+  description: t('all_products_subtitle'),
+});
 
 watch(() => route.query.search, (value) => {
   const next = String(value || '');
@@ -160,7 +174,7 @@ watchDebounced(searchQuery, (value) => {
   setKeyword(value);
 }, { debounce: 400 });
 
-const { pending } = useAsyncData(
+const query = useAsyncData(
   () => `products-catalog-${locale.value}-${route.fullPath}`,
   async () => {
     syncFromRoute();
@@ -168,13 +182,14 @@ const { pending } = useAsyncData(
     await initCatalog();
     return true;
   },
-  { lazy: true, watch: [locale, () => route.fullPath] },
+  { lazy: true, watch: [locale, () => route.fullPath], getCachedData: reuseHydrationPayload },
 );
 
-const showSkeleton = computed(() => pending.value || isLoading.value);
+const isPending = computed(() => query.pending.value || isStorePending.value);
+const isFilterDisabled = computed(() => isPending.value);
+const retry = () => query.refresh();
 
-useSeo({
-  title: t('all_products'),
-  description: t('all_products_subtitle'),
-});
+if (import.meta.server) {
+  await query;
+}
 </script>
