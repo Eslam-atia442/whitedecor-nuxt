@@ -10,7 +10,8 @@ export default defineNuxtRouteMiddleware((to) => {
   const path = unprefix(to.path);
 
   if (pathMatchesPrefix(path, AUTH_REQUIRED_PREFIXES) && !authStore.isAuthenticated) {
-    return navigateTo(localize('/'), { replace: true });
+    const redirect = encodeURIComponent(to.fullPath || '/');
+    return navigateTo(localize(`/login?redirect=${redirect}`), { replace: true });
   }
 
   if (pathMatchesPrefix(path, GUEST_ONLY_PREFIXES) && authStore.isAuthenticated) {

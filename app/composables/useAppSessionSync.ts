@@ -2,6 +2,7 @@ export const useAppSessionSync = () => {
   const authStore = useAuthStore();
   const cartStore = useCartStore();
   const ordersStore = useOrdersStore();
+  const notificationsStore = useNotificationsStore();
 
   watch(
     () => authStore.isAuthenticated,
@@ -9,8 +10,10 @@ export const useAppSessionSync = () => {
       if (isAuth) {
         ordersStore.fetchOrders(true);
         cartStore.fetchCart();
+        notificationsStore.fetchUnreadCount();
       } else {
         ordersStore.clearOrders();
+        notificationsStore.clear();
         cartStore.fetchCart();
       }
     },
@@ -20,5 +23,6 @@ export const useAppSessionSync = () => {
   return {
     cartBadgeCount: computed(() => cartStore.itemCount),
     ordersBadgeCount: computed(() => ordersStore.pendingOrdersCount),
+    notificationsBadgeCount: computed(() => notificationsStore.unreadCount),
   };
 };

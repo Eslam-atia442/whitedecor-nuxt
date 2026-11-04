@@ -31,7 +31,16 @@ export const API_ENDPOINTS = {
     SLIDERS: '/api/v1/sliders',
     SLIDER_DETAILS: (id: string | number) => `/api/v1/sliders/${id}`,
     ADDONS: '/api/v1/addons',
-    NOTIFICATIONS: '/api/v1/notifications',
+  },
+  NOTIFICATIONS: {
+    LIST: '/api/v1/notifications',
+    UNREAD_COUNT: '/api/v1/notifications/unread-count',
+    SHOW: (id: string | number) => `/api/v1/notifications/${id}`,
+    READ: (id: string | number) => `/api/v1/notifications/${id}/read`,
+    READ_ALL: '/api/v1/notifications/read-all',
+  },
+  DEVICES: {
+    FCM_TOKEN: '/api/v1/devices/fcm-token',
   },
   CART: {
     GET: '/api/v1/cart',

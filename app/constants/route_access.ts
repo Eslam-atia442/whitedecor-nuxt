@@ -1,4 +1,4 @@
-export const AUTH_REQUIRED_PREFIXES = ['/checkout', '/profile', '/orders'] as const;
+export const AUTH_REQUIRED_PREFIXES = ['/checkout', '/profile', '/orders', '/notifications'] as const;
 export const GUEST_ONLY_PREFIXES = ['/login', '/register', '/forgot-password', '/otp'] as const;
 
 export const pathMatchesPrefix = (path: string, prefixes: readonly string[]) =>

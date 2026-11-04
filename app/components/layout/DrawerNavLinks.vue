@@ -24,6 +24,7 @@ const items = computed(() => {
   ];
   if (authStore.isAuthenticated) {
     links.push(
+      { to: localePath('/notifications'), icon: 'notifications', label: 'notifications' },
       { to: localePath('/orders'), icon: 'package_2', label: 'my_orders' },
       { to: localePath('/profile'), icon: 'person', label: 'profile_title' },
     );

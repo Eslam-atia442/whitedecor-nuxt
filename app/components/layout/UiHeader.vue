@@ -41,6 +41,7 @@
           class="lg:hidden"
         />
         <UiLanguageSwitcher />
+        <UiNotificationIndicator v-if="authStore.isAuthenticated" />
         <UiWishlistIndicator />
       </div>
     </div>
@@ -55,6 +56,7 @@ const route = useRoute();
 const router = useRouter();
 const localePath = useLocalePath();
 const { locale } = useI18n();
+const authStore = useAuthStore();
 
 const showMobileBack = computed(() => Boolean(route.meta.mobileBack));
 const backIcon = computed(() => (locale.value === 'ar' ? 'arrow_forward' : 'arrow_back'));

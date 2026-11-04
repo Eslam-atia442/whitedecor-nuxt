@@ -145,6 +145,13 @@ declare module 'vue-i18n' {
   'special_discount': string;
   'special_discount_subtitle': string;
   'notifications': string;
+  'notifications_subtitle': string;
+  'no_notifications': string;
+  'notification_no_body': string;
+  'notifications_mark_all_read': string;
+  'notifications_load_more': string;
+  'notifications_enable': string;
+  'notifications_enable_hint': string;
   'no_results': string;
   'new_arrivals': string;
   'new_arrivals_subtitle': string;
