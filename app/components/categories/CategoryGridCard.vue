@@ -5,17 +5,13 @@
   >
     <!-- Category Image Container with Smooth Zoom -->
     <div class="relative aspect-4/3 w-full overflow-hidden bg-surface">
-      <NuxtImg
-        v-if="category.image"
+      <UiNetworkImage
         :src="category.image"
         :alt="category.name"
-        loading="lazy"
-        format="webp"
-        class="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+        fallback-icon="category"
+        class="size-full"
+        img-class="transition-transform duration-700 ease-out group-hover:scale-108"
       />
-      <div v-else class="flex size-full items-center justify-center bg-gold/5 text-gold">
-        <span class="material-symbols-rounded text-5xl opacity-40">category</span>
-      </div>
 
       <!-- Subtle Gradient Overlay -->
       <div class="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

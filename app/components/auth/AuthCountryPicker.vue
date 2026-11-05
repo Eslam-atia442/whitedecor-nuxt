@@ -12,12 +12,13 @@
         class="flex h-12 w-auto shrink-0 items-center justify-center gap-1.5 px-3 text-ink transition hover:bg-mist/30 focus:outline-none"
         @click="handleToggle"
       >
-        <img
-          v-if="selectedCountry?.flag"
-          :src="selectedCountry.flag"
-          :alt="selectedCountry.name"
-          class="size-5 rounded-full border border-mist/80 object-cover"
-        >
+        <UiNetworkImage
+          :src="selectedCountry?.flag"
+          :alt="selectedCountry?.name"
+          fallback-icon="flag"
+          rounded="rounded-full"
+          class="size-5 shrink-0 rounded-full border border-mist/80"
+        />
         <span class="text-xs font-bold text-ink" dir="ltr">
           {{ selectedCountry?.countryCode || '+20' }}
         </span>
@@ -30,12 +31,12 @@
       </button>
     </template>
     <template #option="{ option }">
-      <img
-        v-if="option.image"
+      <UiNetworkImage
         :src="option.image"
-        alt=""
-        class="size-6 rounded-full border border-mist object-cover"
-      >
+        fallback-icon="flag"
+        rounded="rounded-full"
+        class="size-6 shrink-0 rounded-full border border-mist"
+      />
       <span class="flex-1 truncate text-sm font-medium text-ink">{{ option.label }}</span>
       <span class="text-xs font-bold text-gold" dir="ltr">{{ option.meta }}</span>
     </template>

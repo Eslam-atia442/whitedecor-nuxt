@@ -24,16 +24,12 @@
         @click="onSelect(cat.slug)"
       >
         <div class="flex items-center gap-3">
-          <div class="size-8 rounded-lg overflow-hidden bg-surface flex items-center justify-center shrink-0">
-            <NuxtImg
-              v-if="cat.image"
-              :src="cat.image"
-              :alt="cat.name"
-              class="size-full object-cover"
-              loading="lazy"
-            />
-            <span v-else class="material-symbols-rounded text-sm text-gold">category</span>
-          </div>
+          <UiNetworkImage
+            :src="cat.image"
+            :alt="cat.name"
+            fallback-icon="category"
+            class="size-8 rounded-lg shrink-0"
+          />
           <span>{{ cat.name }}</span>
         </div>
         <span v-if="selectedSlug === cat.slug" class="material-symbols-rounded text-lg text-gold">check</span>

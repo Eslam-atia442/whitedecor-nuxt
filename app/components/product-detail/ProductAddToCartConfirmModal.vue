@@ -8,15 +8,12 @@
       <!-- Product Details with Image -->
       <div class="flex items-center gap-4 p-3 rounded-2xl border border-mist bg-surface">
         <div class="relative size-16 shrink-0 overflow-hidden rounded-xl bg-card border border-mist">
-          <NuxtImg
-            v-if="productImage"
+          <UiNetworkImage
             :src="productImage"
             :alt="productName"
-            class="size-full object-cover"
+            fallback-icon="chair"
+            class="size-full"
           />
-          <div v-else class="flex size-full items-center justify-center text-gold/40">
-            <span class="material-symbols-rounded text-2xl">chair</span>
-          </div>
         </div>
 
         <div class="space-y-1 min-w-0 flex-1">

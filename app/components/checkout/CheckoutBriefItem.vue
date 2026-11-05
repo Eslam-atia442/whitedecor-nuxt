@@ -1,16 +1,13 @@
 <template>
   <div class="flex items-center gap-3 py-2.5 border-b border-mist/50 last:border-0">
     <div class="relative size-14 shrink-0 overflow-hidden rounded-xl bg-surface border border-mist/60">
-      <NuxtImg
-        v-if="item.product?.image"
-        :src="item.product.image"
+      <UiNetworkImage
+        :src="item.product?.image"
         :alt="item.product_name"
-        class="size-full object-cover"
+        fallback-icon="chair"
+        class="size-full"
       />
-      <div v-else class="flex size-full items-center justify-center text-gold/40">
-        <span class="material-symbols-rounded text-2xl">chair</span>
-      </div>
-      <span class="absolute -top-1.5 -end-1.5 flex size-5 items-center justify-center rounded-full bg-navy text-[10px] font-bold text-surface shadow-subtle">
+      <span class="absolute -top-1.5 -end-1.5 flex size-5 items-center justify-center rounded-full bg-navy text-[10px] font-bold text-surface shadow-subtle z-20">
         {{ item.quantity }}
       </span>
     </div>

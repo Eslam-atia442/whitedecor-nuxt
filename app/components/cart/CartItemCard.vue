@@ -3,15 +3,13 @@
     <!-- Thumbnail & Details -->
     <div class="flex items-center gap-4 flex-1 min-w-0">
       <NuxtLink :to="localize(`/products/${item.product_id}`)" class="relative size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl bg-surface border border-mist/60">
-        <NuxtImg
-          v-if="item.product?.image"
-          :src="item.product.image"
+        <UiNetworkImage
+          :src="item.product?.image"
           :alt="item.product_name"
-          class="size-full object-cover transition-transform duration-500 hover:scale-105"
+          fallback-icon="chair"
+          class="size-full"
+          img-class="transition-transform duration-500 hover:scale-105"
         />
-        <div v-else class="flex size-full items-center justify-center text-gold/40">
-          <span class="material-symbols-rounded text-3xl">chair</span>
-        </div>
       </NuxtLink>
 
       <div class="space-y-1.5 min-w-0 flex-1">

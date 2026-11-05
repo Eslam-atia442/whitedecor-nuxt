@@ -23,15 +23,13 @@
         class="group w-20 shrink-0 snap-start sm:w-24 text-center"
       >
         <div class="aspect-square overflow-hidden rounded-2xl bg-surface/90 p-1 shadow-subtle ring-1 ring-mist/60 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-card group-hover:ring-gold/50">
-          <NuxtImg
-            v-if="category.image"
+          <UiNetworkImage
             :src="category.image"
             :alt="category.name"
-            class="size-full rounded-xl object-cover transition duration-500 group-hover:scale-105"
+            fallback-icon="category"
+            class="size-full rounded-xl"
+            img-class="transition duration-500 group-hover:scale-105"
           />
-          <div v-else class="flex size-full items-center justify-center rounded-xl bg-gold/5 text-gold">
-            <span class="material-symbols-rounded text-2xl opacity-50">category</span>
-          </div>
         </div>
         <p class="mt-2 truncate text-xs font-bold text-ink transition-colors group-hover:text-gold">
           {{ category.name }}

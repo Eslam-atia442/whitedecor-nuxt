@@ -5,8 +5,13 @@
     :class="selected ? 'border border-gold bg-gold/5' : 'border border-transparent'"
     @click="$emit('select')"
   >
-    <img v-if="country.flag" :src="country.flag" :alt="country.name" class="size-6 rounded-full object-cover">
-    <span v-else class="size-6 rounded-full bg-mist" />
+    <UiNetworkImage
+      :src="country.flag"
+      :alt="country.name"
+      fallback-icon="flag"
+      rounded="rounded-full"
+      class="size-6 shrink-0 rounded-full"
+    />
     <span class="flex-1 text-sm text-ink">{{ country.name }}</span>
     <span class="text-sm font-medium text-ink-secondary">{{ country.countryCode }}</span>
   </button>

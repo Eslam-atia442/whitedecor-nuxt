@@ -4,13 +4,16 @@
     :class="active ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'"
     :aria-hidden="!active"
   >
-    <img
+    <UiNetworkImage
       v-if="slide.image"
       :src="slide.image"
       :alt="title"
-      class="absolute inset-0 size-full object-cover transition-transform duration-1000 ease-out"
+      loading="eager"
+      fallback-icon="storefront"
+      class="absolute inset-0 size-full"
+      img-class="transition-transform duration-1000 ease-out"
       :class="active && !reduceMotion ? 'hero-ken-burns' : 'scale-105'"
-    >
+    />
     <div v-else class="absolute inset-0 size-full navy-gradient overflow-hidden">
       <div class="hero-aurora pointer-events-none" />
     </div>

@@ -12,15 +12,24 @@
         :class="isOpen ? 'border-gold ring-1 ring-gold/30' : ''"
         @click="handleToggle"
       >
-        <img v-if="selectedOption?.image" :src="selectedOption.image" alt="" class="size-6 rounded-full object-cover">
-        <span v-else class="size-6 rounded-full bg-mist" />
+        <UiNetworkImage
+          :src="selectedOption?.image"
+          fallback-icon="flag"
+          rounded="rounded-full"
+          class="size-6 shrink-0 rounded-full"
+        />
         <span class="flex-1 text-sm text-ink">{{ selectedOption?.label || $t('settings.select_country') }}</span>
         <span class="text-sm font-semibold text-gold" dir="ltr">{{ selectedCode }}</span>
         <span class="material-symbols-rounded text-ink-secondary transition-transform" :class="{ 'rotate-180': isOpen }">expand_more</span>
       </button>
     </template>
     <template #option="{ option }">
-      <img v-if="option.image" :src="option.image" alt="" class="size-8 rounded-full border border-mist object-cover">
+      <UiNetworkImage
+        :src="option.image"
+        fallback-icon="flag"
+        rounded="rounded-full"
+        class="size-8 shrink-0 rounded-full border border-mist"
+      />
       <span class="flex-1 truncate">{{ option.label }}</span>
       <span class="text-sm font-medium text-gold" dir="ltr">{{ option.meta }}</span>
     </template>

@@ -52,6 +52,10 @@ declare module 'vue-i18n' {
   'sign_in_continue': string;
   'password': string;
   'forgot_password': string;
+  'image_not_available': string;
+  'image_loading': string;
+  'custom_options_title': string;
+  'customize': string;
   'sign_in': string;
   'login': string;
   'or': string;

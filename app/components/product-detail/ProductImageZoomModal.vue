@@ -17,11 +17,12 @@
         </button>
 
         <!-- Active Large Image -->
-        <NuxtImg
-          v-if="currentImage"
+        <UiNetworkImage
           :src="currentImage"
           :alt="productName || 'Fullscreen Image'"
-          class="max-h-[75vh] max-w-full rounded-2xl object-contain shadow-2xl"
+          fit="contain"
+          fallback-icon="chair"
+          class="max-h-[75vh] max-w-full rounded-2xl shadow-2xl"
         />
 
         <!-- Thumbnail Selector -->
@@ -34,7 +35,7 @@
             :class="activeIndex === idx ? 'border-gold opacity-100' : 'border-transparent opacity-50 hover:opacity-80'"
             @click="$emit('update:activeIndex', idx)"
           >
-            <NuxtImg :src="img" class="size-full object-cover" />
+            <UiNetworkImage :src="img" fit="cover" fallback-icon="chair" class="size-full" />
           </button>
         </div>
       </div>

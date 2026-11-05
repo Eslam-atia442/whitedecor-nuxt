@@ -3,11 +3,12 @@
   <div class="flex items-center justify-between gap-4 p-4 rounded-2xl border border-mist bg-surface hover:border-gold/30 transition-all">
     <div class="flex items-center gap-3.5 min-w-0 flex-1">
       <NuxtLink :to="productLink" class="block shrink-0">
-        <img
-          :src="item.product?.image || '/images/placeholder.webp'"
+        <UiNetworkImage
+          :src="item.product?.image"
           :alt="item.product_name"
-          class="size-16 sm:size-18 rounded-2xl object-cover bg-card border border-mist shadow-xs transition-transform hover:scale-105"
-          loading="lazy"
+          fallback-icon="chair"
+          class="size-16 sm:size-18 rounded-2xl bg-card border border-mist shadow-xs"
+          img-class="transition-transform hover:scale-105"
         />
       </NuxtLink>
 

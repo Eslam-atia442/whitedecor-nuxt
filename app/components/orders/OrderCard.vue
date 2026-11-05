@@ -29,11 +29,11 @@
           :key="item.id"
           class="flex items-center gap-2.5 rounded-2xl border border-mist bg-surface p-2 shrink-0 max-w-[210px]"
         >
-          <img
-            :src="item.product?.image || '/images/placeholder.webp'"
+          <UiNetworkImage
+            :src="item.product?.image"
             :alt="item.product_name"
-            class="size-12 rounded-xl object-cover bg-card border border-mist shrink-0"
-            loading="lazy"
+            fallback-icon="chair"
+            class="size-12 rounded-xl bg-card border border-mist shrink-0"
           />
           <div class="min-w-0 flex-1 text-xs">
             <p class="truncate font-bold text-ink">{{ item.product_name }}</p>

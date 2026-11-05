@@ -5,11 +5,12 @@
     <div class="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
       <div class="relative group">
         <div class="relative size-24 overflow-hidden rounded-full border-2 border-gold/40 shadow-gold transition group-hover:border-gold">
-          <img
+          <UiNetworkImage
             :src="avatarPreview || authStore.userAvatar"
             :alt="authStore.userName"
-            class="size-full object-cover"
-          >
+            fallback-icon="person"
+            class="size-full"
+          />
         </div>
         <button
           type="button"

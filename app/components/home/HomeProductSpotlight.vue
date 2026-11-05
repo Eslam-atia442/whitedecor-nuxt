@@ -41,15 +41,13 @@
           class="group/item flex items-center justify-between gap-4 rounded-2xl border border-mist/60 bg-surface/40 p-3 transition-colors hover:border-gold/50"
         >
           <div class="flex items-center gap-3 min-w-0">
-            <div class="size-14 sm:size-16 shrink-0 overflow-hidden rounded-xl bg-mist/30">
-              <NuxtImg
-                v-if="activeProduct.image"
-                :src="activeProduct.image"
-                :alt="activeProduct.name"
-                class="size-full object-cover transition-transform group-hover/item:scale-105"
-                loading="lazy"
-              />
-            </div>
+            <UiNetworkImage
+              :src="activeProduct.image"
+              :alt="activeProduct.name"
+              fallback-icon="chair"
+              class="size-14 sm:size-16 shrink-0 rounded-xl bg-mist/30"
+              img-class="transition-transform group-hover/item:scale-105"
+            />
             <div class="min-w-0">
               <h4 class="truncate text-sm sm:text-base font-bold text-ink group-hover/item:text-gold">
                 {{ activeProduct.name }}

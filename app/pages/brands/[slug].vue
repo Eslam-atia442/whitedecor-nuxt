@@ -13,3 +13,4 @@ onMounted(async () => {
   await navigateTo(localize({ path: '/products', query: { search: brandParam } }), { replace: true });
 });
 </script>
+

@@ -9,7 +9,13 @@
         @click="handleToggle"
       >
         <div class="flex min-w-0 items-center gap-3">
-          <img v-if="selectedOption?.image" :src="selectedOption.image" alt="" class="size-6 shrink-0 rounded-full object-cover">
+          <UiNetworkImage
+            v-if="selectedOption?.image"
+            :src="selectedOption.image"
+            fallback-icon="image"
+            rounded="rounded-full"
+            class="size-6 shrink-0 rounded-full"
+          />
           <span class="truncate">{{ selectedOption?.label || placeholder }}</span>
         </div>
         <span
@@ -44,7 +50,13 @@
         @click="selectOption(option.value)"
       >
         <slot name="option" :option="option" :is-selected="String(modelValue) === String(option.value)">
-          <img v-if="option.image" :src="option.image" alt="" class="size-8 shrink-0 rounded-full border border-mist object-cover">
+          <UiNetworkImage
+            v-if="option.image"
+            :src="option.image"
+            fallback-icon="image"
+            rounded="rounded-full"
+            class="size-8 shrink-0 rounded-full border border-mist"
+          />
           <span class="flex-1 truncate">{{ option.label }}</span>
         </slot>
         <span v-if="String(modelValue) === String(option.value)" class="material-symbols-rounded shrink-0 text-gold">check</span>

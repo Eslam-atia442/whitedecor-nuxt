@@ -75,3 +75,4 @@ main().catch((err) => {
   console.error('\n\x1b[31m❌ Deployment failed:\x1b[0m', err.message);
   process.exit(1);
 });
+
