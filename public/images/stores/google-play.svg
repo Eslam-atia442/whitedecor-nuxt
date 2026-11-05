@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="gp_red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EA4335"/>
+      <stop offset="100%" stop-color="#C5221F"/>
+    </linearGradient>
+    <linearGradient id="gp_blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4285F4"/>
+      <stop offset="100%" stop-color="#1A73E8"/>
+    </linearGradient>
+    <linearGradient id="gp_yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBC04"/>
+      <stop offset="100%" stop-color="#F29900"/>
+    </linearGradient>
+    <linearGradient id="gp_green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34A853"/>
+      <stop offset="100%" stop-color="#1E8E3E"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#0E1726"/>
+  <g transform="translate(136, 116) scale(0.95)">
+    <path d="M20.5 8.7C13.6 12.3 8.8 19.5 8.8 28.5V227.5C8.8 236.5 13.6 243.7 20.5 247.3L130.6 137.2L20.5 8.7Z" fill="url(#gp_blue)"/>
+    <path d="M168.1 99.7L130.6 137.2L168.1 174.7L214.3 148.4C227.4 140.9 227.4 133.5 214.3 126L168.1 99.7Z" fill="url(#gp_yellow)"/>
+    <path d="M20.5 8.7L130.6 137.2L168.1 99.7L46.2 30.4C36.6 24.9 27.2 16.5 20.5 8.7Z" fill="url(#gp_green)"/>
+    <path d="M20.5 247.3C27.2 239.5 36.6 231.1 46.2 225.6L168.1 156.3L130.6 118.8L20.5 247.3Z" fill="url(#gp_red)"/>
+  </g>
+</svg>

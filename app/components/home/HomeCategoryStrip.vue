@@ -1,29 +1,39 @@
 <template>
-  <section v-if="categories.length" class="rounded-3xl bg-card p-4 shadow-card sm:p-6">
+  <section v-if="categories.length" class="space-y-4">
     <UiSectionHeader
       :title="$t('categories')"
       :subtitle="$t('home_categories_subtitle')"
       to="/categories"
     />
-    <div class="mt-4 flex gap-2.5 overflow-x-auto pb-1 snap-x scrollbar-none sm:flex-wrap sm:overflow-visible">
+    <div
+      ref="scroller"
+      class="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x scrollbar-none sm:flex-wrap sm:overflow-visible cursor-grab active:cursor-grabbing select-none"
+      style="-webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @pointerleave="onPointerLeave"
+      @pointercancel="onPointerCancel"
+      @click.capture="onClickCapture"
+    >
       <NuxtLink
         v-for="category in categories"
         :key="category.id"
         :to="localize(`/categories/${category.slug}`)"
-        class="group w-[4.25rem] shrink-0 snap-start sm:w-20"
+        class="group w-20 shrink-0 snap-start sm:w-24 text-center"
       >
-        <div class="aspect-square overflow-hidden rounded-xl bg-surface shadow-card ring-1 ring-mist">
+        <div class="aspect-square overflow-hidden rounded-2xl bg-surface/90 p-1 shadow-subtle ring-1 ring-mist/60 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-card group-hover:ring-gold/50">
           <NuxtImg
             v-if="category.image"
             :src="category.image"
             :alt="category.name"
-            class="size-full object-cover transition duration-500 group-hover:scale-110"
+            class="size-full rounded-xl object-cover transition duration-500 group-hover:scale-105"
           />
-          <div v-else class="flex size-full items-center justify-center text-gold">
-            <span class="material-symbols-rounded text-xl opacity-50">category</span>
+          <div v-else class="flex size-full items-center justify-center rounded-xl bg-gold/5 text-gold">
+            <span class="material-symbols-rounded text-2xl opacity-50">category</span>
           </div>
         </div>
-        <p class="mt-1.5 truncate text-center text-[10px] font-bold text-ink group-hover:text-gold sm:text-[11px]">
+        <p class="mt-2 truncate text-xs font-bold text-ink transition-colors group-hover:text-gold">
           {{ category.name }}
         </p>
       </NuxtLink>
@@ -37,4 +47,13 @@ import type { CategoryDto } from '~/types/category';
 defineProps<{ categories: CategoryDto[] }>();
 
 const { localize } = useLocalizedPath();
+const scroller = ref<HTMLElement | null>(null);
+const {
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerLeave,
+  onPointerCancel,
+  onClickCapture,
+} = useDragScroll(scroller);
 </script>

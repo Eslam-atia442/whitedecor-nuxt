@@ -2,9 +2,11 @@
 import { toast } from 'vue-sonner';
 import { useCheckoutStore } from '~/stores/checkout';
 import { useCartStore } from '~/stores/cart';
+import { useOrdersStore } from '~/stores/orders';
 import { useAuthStore } from '~/stores/auth';
 import { useAddressStore } from '~/stores/address';
 import { useSettingsStore } from '~/stores/settings';
+import { findGovernorate } from '~/constants/governorates';
 import type { CheckoutApiResponse, OrderDto } from '~/types/checkout';
 
 export const useCheckout = () => {
@@ -15,6 +17,7 @@ export const useCheckout = () => {
   const settingsStore = useSettingsStore();
   const api = useApi();
   const { push, localize } = useLocalizedPath();
+  const { locale } = useI18n();
 
   const getT = (key: string, fallback = ''): string => {
     try {
@@ -36,12 +39,29 @@ export const useCheckout = () => {
     if (fromSettings && String(fromSettings) !== '1' && String(fromSettings) !== '65') return String(fromSettings);
     if (fromList && String(fromList) !== '1' && String(fromList) !== '65') return String(fromList);
     if (fromUser && String(fromUser) !== '1' && String(fromUser) !== '65') return String(fromUser);
-    return '66'; // White Decor Egypt country ID from /api/v1/countries
+    return '66'; // White Decor Egypt country ID
   };
+
+  const finalTotal = computed(() => {
+    return Math.max(0, cartStore.subtotal - cartStore.discount + store.shippingFee);
+  });
+
+  const fullDeliveryAddress = computed(() => {
+    const isAr = locale.value === 'ar';
+    const gov = findGovernorate(store.form.governorate);
+    const govName = gov ? (isAr ? gov.nameAr : gov.nameEn) : store.form.governorate;
+
+    let text = store.form.address.trim();
+    if (store.form.city) text = `${store.form.city} - ${text}`;
+    if (govName) text = `${isAr ? 'المحافظة: ' : 'Gov: '}${govName} - ${text}`;
+    if (store.form.building) text += `، عمارة ${store.form.building}`;
+    if (store.form.apartment) text += `، شقة ${store.form.apartment}`;
+    return text;
+  });
 
   const initCheckout = () => {
     if (!authStore.isAuthenticated) {
-      toast.info(getT('auth_required_checkout', 'يرجى تسجيل الدخول أو إنشاء حساب لإتمام الطلب بسهولة'));
+      toast.info(getT('auth_required_checkout', 'يرجى تسجيل الدخول أو إنشاء حساب لإتمام الطلب'));
       return navigateTo(localize('/register?redirect=/checkout'), { replace: true });
     }
 
@@ -50,7 +70,6 @@ export const useCheckout = () => {
       return;
     }
 
-    // Always reset to Step 1 on checkout page entry
     store.setStep(1);
     store.form.countryId = getValidCountryId();
 
@@ -68,7 +87,7 @@ export const useCheckout = () => {
     }
   };
 
-  const validateStep1 = (): boolean => {
+  const validateForm = (): boolean => {
     const errors: Record<string, string[]> = {};
     if (!store.form.name.trim()) {
       errors.name = [getT('required_field', 'هذا الحقل مطلوب')];
@@ -81,6 +100,10 @@ export const useCheckout = () => {
       errors.phone = [getT('invalid_phone', 'يرجى إدخال رقم هاتف صحيح')];
       toast.error(getT('invalid_phone', 'يرجى إدخال رقم هاتف صحيح'));
     }
+    if (!store.form.governorate) {
+      errors.governorate = [getT('select_governorate_required', 'يرجى اختيار المحافظة')];
+      toast.error(getT('select_governorate_required', 'يرجى اختيار المحافظة'));
+    }
     if (!store.form.address.trim()) {
       errors.address = [getT('required_field', 'هذا الحقل مطلوب')];
       toast.error(getT('required_field_address', 'يرجى إدخال عنوان التوصيل'));
@@ -88,23 +111,6 @@ export const useCheckout = () => {
 
     store.setFieldErrors(errors);
     return Object.keys(errors).length === 0;
-  };
-
-  const nextStep = () => {
-    if (store.activeStep === 1 && !validateStep1()) return;
-    store.setStep(store.activeStep + 1);
-  };
-
-  const prevStep = () => {
-    store.setStep(store.activeStep - 1);
-  };
-
-  const validateForm = (): boolean => {
-    if (!validateStep1()) {
-      store.setStep(1);
-      return false;
-    }
-    return true;
   };
 
   const promptConfirmation = () => {
@@ -119,17 +125,18 @@ export const useCheckout = () => {
     store.generalError = null;
 
     try {
-      let fullAddress = store.form.address.trim();
-      if (store.form.city) fullAddress = `${store.form.city} - ${fullAddress}`;
-      if (store.form.building) fullAddress += `، عمارة ${store.form.building}`;
-      if (store.form.apartment) fullAddress += `، شقة ${store.form.apartment}`;
+      const isAr = locale.value === 'ar';
+      const gov = findGovernorate(store.form.governorate);
+      const govName = gov ? (isAr ? gov.nameAr : gov.nameEn) : store.form.governorate;
 
+      const mergedAddress = fullDeliveryAddress.value;
       const countryId = getValidCountryId();
       const formData = new FormData();
       formData.append('name', store.form.name.trim());
       formData.append('phone', store.form.phone.trim());
-      formData.append('address', fullAddress);
+      formData.append('address', mergedAddress);
       formData.append('country_id', countryId);
+      if (govName) formData.append('governorate', govName);
       if (store.form.notes?.trim()) formData.append('notes', store.form.notes.trim());
 
       const activeCoupon = cartStore.appliedCoupon?.coupon_num || store.form.couponNum?.trim();
@@ -142,12 +149,12 @@ export const useCheckout = () => {
       const snapOfferSavings = cartStore.offerSavings;
       const snapSubtotal = cartStore.subtotal;
       const snapDiscount = cartStore.discount;
-      const snapTotal = cartStore.total;
+      const snapShipping = store.shippingFee;
+      const snapTotal = Math.max(0, snapSubtotal - snapDiscount + snapShipping);
       const snapCoupon = cartStore.appliedCoupon;
       const snapItems = [...cartStore.items];
 
       const res = await api.post<CheckoutApiResponse>('/api/v1/checkout', formData);
-
       const backendOrder = (res?.data as any)?.order || res?.data || {};
 
       const order: OrderDto = {
@@ -155,7 +162,7 @@ export const useCheckout = () => {
         order_num: backendOrder.order_num || `WD-${Date.now().toString().slice(-6)}`,
         name: backendOrder.name || store.form.name,
         phone: backendOrder.phone || store.form.phone,
-        address: backendOrder.address || fullAddress,
+        address: backendOrder.address || mergedAddress,
         total: String(backendOrder.total || snapTotal),
         subtotal: String(backendOrder.subtotal || snapSubtotal),
         original_subtotal: String(snapOrigSubtotal),
@@ -169,29 +176,34 @@ export const useCheckout = () => {
       store.placedOrder = order;
       store.status = 'success';
       store.isSuccessModalOpen = true;
-      store.setStep(1);
 
-      // Clear cart
+      // 1. Auto-save delivery address locally for next checkout (matching Flutter & modern apps)
+      addressStore.saveFromCheckout({
+        name: store.form.name,
+        phone: store.form.phone,
+        address: mergedAddress,
+        city: store.form.city,
+        governorate: govName,
+        countryId,
+      });
+
+      // 2. Clear cart
       cartStore.cartToken = null;
       await cartStore.fetchCart();
+
+      // 3. Immediately refresh ordersStore with new order
+      try {
+        const ordersStore = useOrdersStore();
+        await ordersStore.fetchOrders(true);
+      } catch {
+        // ignore background orders fetch errors
+      }
+
       toast.success(getT('order_success_title', 'تم تأكيد طلبك بنجاح!'));
     } catch (err: any) {
       store.status = 'error';
       if (err?.errors && typeof err.errors === 'object') {
         store.setFieldErrors(err.errors);
-        
-        // Smart step routing based on which field failed
-        const errFields = Object.keys(err.errors);
-        if (errFields.some(f => ['name', 'phone', 'address', 'country_id', 'city', 'building', 'apartment'].includes(f))) {
-          store.setStep(1);
-        } else if (errFields.some(f => ['delivery_method', 'shipping_method'].includes(f))) {
-          store.setStep(2);
-        } else if (errFields.some(f => ['payment_method'].includes(f))) {
-          store.setStep(3);
-        } else {
-          store.setStep(4);
-        }
-
         const firstErr = Object.values(err.errors).flat()[0] as string;
         if (firstErr) toast.error(firstErr);
       } else {
@@ -205,10 +217,9 @@ export const useCheckout = () => {
   return {
     store,
     cartStore,
+    finalTotal,
+    fullDeliveryAddress,
     initCheckout,
-    validateStep1,
-    nextStep,
-    prevStep,
     validateForm,
     promptConfirmation,
     executeOrder,

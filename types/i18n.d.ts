@@ -53,6 +53,7 @@ declare module 'vue-i18n' {
   'password': string;
   'forgot_password': string;
   'sign_in': string;
+  'login': string;
   'or': string;
   'no_account_register': string;
   'create_account': string;
@@ -195,6 +196,7 @@ declare module 'vue-i18n' {
   'no_products_filter_title': string;
   'no_products_filter_subtitle': string;
   'clear_filters': string;
+  'tap_to_load_more_products': string;
   'loading_more_products': string;
   'search_category_hint': string;
   'search_brand_hint': string;
@@ -343,5 +345,7 @@ declare module 'vue-i18n' {
   'go_to_login': string;
   'go_to_register': string;
   'go_to_settings': string;
+  'cash_on_delivery': string;
+  'cod_description': string;
   }
 }

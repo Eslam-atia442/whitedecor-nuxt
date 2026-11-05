@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
 import { toast } from 'vue-sonner';
+import { AUTH_COOKIE_OPTIONS } from '~/constants/auth_cookie';
 import type { AddressDto } from '~/types/profile';
+
+const isMock = (a: AddressDto) =>
+  a.id === 'addr_default' || a.address?.includes('كمبوند النخيل') || a.phone === '+201000933972';
 
 export const useAddressStore = defineStore('address', () => {
   const getT = (key: string, fallback = '') => {
@@ -8,97 +12,91 @@ export const useAddressStore = defineStore('address', () => {
       const nuxtApp = tryUseNuxtApp();
       const t = (nuxtApp?.$i18n as { t?: (k: string) => string })?.t;
       if (t) return t(key);
-    } catch {
-      // fallback
-    }
+    } catch { /* fallback */ }
     return fallback || key;
   };
 
-  const savedAddressesCookie = useCookie<AddressDto[]>('wd_saved_addresses', {
+  const savedCookie = useCookie<AddressDto[]>('wd_saved_addresses', {
+    ...AUTH_COOKIE_OPTIONS,
     maxAge: 60 * 60 * 24 * 365,
-    sameSite: 'lax',
-    path: '/',
-    default: () => [
-      {
-        id: 'addr_default',
-        title: 'المنزل / الرئيسية',
-        name: 'سارة أحمد',
-        phone: '+201000933972',
-        city: 'القاهرة - التجمع الخامس',
-        address: 'شارع التسعين الشمالي، كمبوند النخيل، فيلا 12',
-        is_default: true,
-        country_id: '1',
-      },
-    ],
+    default: () => [],
   });
 
-  const addresses = computed(() => savedAddressesCookie.value || []);
+  if (Array.isArray(savedCookie.value) && savedCookie.value.some(isMock)) {
+    savedCookie.value = savedCookie.value.filter((a) => !isMock(a));
+  }
+
+  const addresses = computed(() => (savedCookie.value || []).filter((a) => !isMock(a)));
   const defaultAddress = computed(() => addresses.value.find((a) => a.is_default) || addresses.value[0]);
 
-  const addAddress = (newAddr: Omit<AddressDto, 'id'>) => {
+  const addAddress = (newAddr: Omit<AddressDto, 'id'>, notify = true) => {
     const id = `addr_${Date.now()}`;
-    const isFirst = !savedAddressesCookie.value || savedAddressesCookie.value.length === 0;
-    const shouldBeDefault = newAddr.is_default || isFirst;
+    const cleanList = addresses.value;
+    const shouldBeDefault = newAddr.is_default || cleanList.length === 0;
 
-    let updated = (savedAddressesCookie.value || []).map((addr) => ({
-      ...addr,
-      is_default: shouldBeDefault ? false : addr.is_default,
+    let updated = cleanList.map((a) => ({
+      ...a,
+      is_default: shouldBeDefault ? false : a.is_default,
     }));
 
-    const created: AddressDto = {
-      ...newAddr,
-      id,
-      is_default: shouldBeDefault,
-    };
-
+    const created: AddressDto = { ...newAddr, id, is_default: shouldBeDefault };
     updated = [created, ...updated];
-    savedAddressesCookie.value = updated;
-    toast.success(getT('save_changes', 'تم الحفظ'));
+    savedCookie.value = updated;
+    if (notify) toast.success(getT('save_changes', 'تم الحفظ'));
     return created;
   };
 
+  const saveFromCheckout = (info: {
+    name: string; phone: string; address: string; city?: string; governorate?: string; countryId?: string;
+  }) => {
+    if (!info.name || !info.phone || !info.address) return;
+    const cleanList = addresses.value;
+    const exists = cleanList.find((a) => a.address.trim() === info.address.trim() && a.phone.trim() === info.phone.trim());
+    if (exists) return;
+
+    addAddress({
+      title: getT('home_address', 'عنوان التوصيل'),
+      name: info.name.trim(),
+      phone: info.phone.trim(),
+      city: info.city?.trim() || info.governorate || '',
+      address: info.address.trim(),
+      country_id: info.countryId || '66',
+      is_default: cleanList.length === 0,
+    }, false);
+  };
+
   const updateAddress = (id: string, updatedFields: Partial<AddressDto>) => {
-    if (!savedAddressesCookie.value) return;
-
-    let updated = savedAddressesCookie.value.map((addr) => {
-      if (addr.id === id) {
-        return { ...addr, ...updatedFields };
-      }
-      if (updatedFields.is_default) {
-        return { ...addr, is_default: false };
-      }
-      return addr;
+    if (!savedCookie.value) return;
+    const updated = addresses.value.map((a) => {
+      if (a.id === id) return { ...a, ...updatedFields };
+      if (updatedFields.is_default) return { ...a, is_default: false };
+      return a;
     });
-
-    savedAddressesCookie.value = updated;
+    savedCookie.value = updated;
     toast.success(getT('save_changes', 'تم الحفظ'));
   };
 
   const deleteAddress = (id: string) => {
-    if (!savedAddressesCookie.value) return;
-    const filtered = savedAddressesCookie.value.filter((addr) => addr.id !== id);
-
+    if (!savedCookie.value) return;
+    const filtered = addresses.value.filter((a) => a.id !== id);
     if (filtered.length > 0 && !filtered.some((a) => a.is_default)) {
       const first = filtered[0];
       if (first) first.is_default = true;
     }
-
-    savedAddressesCookie.value = filtered;
+    savedCookie.value = filtered;
     toast.success(getT('delete', 'تم الحذف'));
   };
 
   const setDefaultAddress = (id: string) => {
-    if (!savedAddressesCookie.value) return;
-    savedAddressesCookie.value = savedAddressesCookie.value.map((addr) => ({
-      ...addr,
-      is_default: addr.id === id,
-    }));
+    if (!savedCookie.value) return;
+    savedCookie.value = addresses.value.map((a) => ({ ...a, is_default: a.id === id }));
   };
 
   return {
     addresses,
     defaultAddress,
     addAddress,
+    saveFromCheckout,
     updateAddress,
     deleteAddress,
     setDefaultAddress,

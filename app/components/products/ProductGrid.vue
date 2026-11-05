@@ -18,7 +18,9 @@
       <UiButton
         variant="outline"
         size="md"
+        rounded="pill"
         :disabled="isLoadingMore"
+        class="group min-w-[220px] sm:min-w-[260px] border-mist hover:border-gold/60 shadow-subtle hover:shadow-card hover:-translate-y-0.5 transition-all text-xs sm:text-sm font-bold"
         @click="$emit('load-more')"
       >
         <span v-if="isLoadingMore" class="flex items-center gap-2">
@@ -26,8 +28,8 @@
           <span>{{ $t('loading_more_products') }}</span>
         </span>
         <span v-else class="flex items-center gap-2">
-          <span>{{ $t('loading_more_products') }}</span>
-          <span class="material-symbols-rounded text-base">expand_more</span>
+          <span>{{ $t('tap_to_load_more_products') }}</span>
+          <span class="material-symbols-rounded text-base transition-transform group-hover:translate-y-0.5">expand_more</span>
         </span>
       </UiButton>
     </div>

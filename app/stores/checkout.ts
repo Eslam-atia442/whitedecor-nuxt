@@ -1,5 +1,6 @@
 // stores/checkout.ts
 import { defineStore } from 'pinia';
+import { getGovernorateShippingFee } from '~/constants/governorates';
 import type {
   CheckoutFormState,
   CheckoutFieldErrors,
@@ -12,6 +13,7 @@ export const useCheckoutStore = defineStore('checkout', () => {
     name: '',
     phone: '',
     countryId: '66',
+    governorate: 'cairo',
     city: 'القاهرة',
     address: '',
     building: '',
@@ -30,6 +32,8 @@ export const useCheckoutStore = defineStore('checkout', () => {
   const placedOrder = ref<OrderDto | null>(null);
   const isConfirmModalOpen = ref(false);
   const isSuccessModalOpen = ref(false);
+
+  const shippingFee = computed(() => getGovernorateShippingFee(form.governorate));
 
   const setStep = (step: number) => {
     activeStep.value = Math.max(1, Math.min(4, step));
@@ -55,6 +59,8 @@ export const useCheckoutStore = defineStore('checkout', () => {
   const resetForm = () => {
     form.name = '';
     form.phone = '';
+    form.governorate = 'cairo';
+    form.city = 'القاهرة';
     form.address = '';
     form.building = '';
     form.apartment = '';
@@ -73,6 +79,7 @@ export const useCheckoutStore = defineStore('checkout', () => {
     form,
     activeStep,
     selectedAddressId,
+    shippingFee,
     status,
     fieldErrors,
     generalError,

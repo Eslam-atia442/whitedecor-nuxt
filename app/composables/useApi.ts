@@ -1,4 +1,5 @@
 import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack';
+import { AUTH_COOKIE_OPTIONS } from '~/constants/auth_cookie';
 import type { ApiErrorResponse } from '~/types/api';
 
 const formatBodyForDebug = (body: unknown): unknown => {
@@ -18,12 +19,9 @@ const formatBodyForDebug = (body: unknown): unknown => {
 };
 
 export const useApi = () => {
-  const { push } = useLocalizedPath();
   const config = useRuntimeConfig();
   const apiBaseUrl = config.public.apiBase || 'https://dashboard.whitedecor.online';
 
-  const tokenCookie = useCookie<string | null>('wd_auth_token');
-  const cartTokenCookie = useCookie<string | null>('wd_cart_token');
   const langCookie = useCookie<string | null>('lang');
 
   const getLocale = (): string => {
@@ -44,6 +42,9 @@ export const useApi = () => {
     options: NitroFetchOptions<NitroFetchRequest> = {},
   ): Promise<T> => {
     const currentLocale = getLocale();
+    const token = useCookie<string | null>('wd_auth_token', AUTH_COOKIE_OPTIONS).value;
+    const cartToken = useCookie<string | null>('wd_cart_token', AUTH_COOKIE_OPTIONS).value;
+
     const headers: Record<string, string> = {
       Accept: 'application/json',
       'Accept-Language': currentLocale,
@@ -52,12 +53,12 @@ export const useApi = () => {
       ...(options.headers as Record<string, string>),
     };
 
-    if (tokenCookie.value) {
-      headers.Authorization = `Bearer ${tokenCookie.value}`;
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
 
-    if (cartTokenCookie.value) {
-      headers['X-Cart-Token'] = cartTokenCookie.value;
+    if (cartToken) {
+      headers['X-Cart-Token'] = cartToken;
     }
 
     const method = (options.method || 'GET').toUpperCase();
@@ -86,6 +87,7 @@ export const useApi = () => {
     try {
       const response = await $fetch<T>(endpoint, {
         baseURL: apiBaseUrl,
+        timeout: 8000,
         ...options,
         headers,
       });
@@ -129,11 +131,27 @@ export const useApi = () => {
         console.groupEnd();
       }
 
-      if (statusCode === 401 && tokenCookie.value) {
-        tokenCookie.value = null;
-        const userCookie = useCookie('wd_auth_user');
-        userCookie.value = null;
-        push('/login');
+      // Safe 401 handling:
+      // Only logout if this was an authenticated request (sent with Bearer token)
+      // and NOT an auth route (login/register) or an optional background poll
+      const endpointStr = String(endpoint || '');
+      const isAuthRoute =
+        endpointStr.includes('/login') ||
+        endpointStr.includes('/register') ||
+        endpointStr.includes('/forgot-password') ||
+        endpointStr.includes('/reset-password');
+      const isOptionalRoute = endpointStr.includes('/notifications/unread-count');
+      const wasAuthRequest = Boolean(headers.Authorization);
+
+      if (statusCode === 401 && wasAuthRequest && !isAuthRoute && !isOptionalRoute) {
+        try {
+          const authStore = useAuthStore();
+          if (authStore.isAuthenticated) {
+            authStore.logout(false, true);
+          }
+        } catch {
+          // ignore cleanup errors
+        }
       }
 
       const normalizedError: ApiErrorResponse = {

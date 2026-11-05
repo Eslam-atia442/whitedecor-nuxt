@@ -1,19 +1,13 @@
 import { defineStore } from 'pinia';
 import { toast } from 'vue-sonner';
 import { API_ENDPOINTS } from '~/constants/api_endpoints';
+import { AUTH_COOKIE_OPTIONS } from '~/constants/auth_cookie';
 import type { UserDto } from '~/types/auth';
 
 export const useAuthStore = defineStore('auth', () => {
-  const cookieOptions = {
-    maxAge: 60 * 60 * 24 * 30,
-    sameSite: 'lax' as const,
-    path: '/',
-    secure: import.meta.env.PROD,
-  };
-
-  const token = useCookie<string | null>('wd_auth_token', cookieOptions);
-  const user = useCookie<UserDto | null>('wd_auth_user', cookieOptions);
-  const cartTokenCookie = useCookie<string | null>('wd_cart_token', cookieOptions);
+  const token = useCookie<string | null>('wd_auth_token', AUTH_COOKIE_OPTIONS);
+  const user = useCookie<UserDto | null>('wd_auth_user', AUTH_COOKIE_OPTIONS);
+  const cartTokenCookie = useCookie<string | null>('wd_cart_token', AUTH_COOKIE_OPTIONS);
   const api = useApi();
   const { push } = useLocalizedPath();
 
@@ -28,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
     return fallback || key;
   };
 
-  const isAuthenticated = computed(() => !!token.value);
+  const isAuthenticated = computed(() => Boolean(token.value && token.value !== 'null' && token.value !== 'undefined'));
   const currentUser = computed(() => user.value);
   const userName = computed(() => user.value?.name || '');
   const userPhone = computed(() => user.value?.phone || '');
@@ -65,14 +59,12 @@ export const useAuthStore = defineStore('auth', () => {
         updateProfile(userObj);
       }
     } catch {
-      // ignore
+      // Endpoint does not exist in backend routes; ignore silently
     }
   };
 
   const initAuth = async () => {
-    if (token.value && import.meta.client) {
-      await fetchProfile();
-    }
+    // Rehydrate session from persisted cookies (matches Flutter SessionCubit.getSavedUser)
     return {
       isAuthenticated: isAuthenticated.value,
       user: user.value,

@@ -143,6 +143,9 @@ export default defineNuxtConfig({
     output: {
       dir: 'build',
     },
+    prerender: {
+      failOnError: false,
+    },
   },
 
   i18n: {
@@ -154,13 +157,7 @@ export default defineNuxtConfig({
     baseUrl: SITE_URL,
     strategy: 'prefix_except_default',
     langDir: 'locales',
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: 'i18n_redirected',
-      redirectOn: 'root',
-      alwaysRedirect: false,
-      fallbackLocale: 'ar',
-    },
+    detectBrowserLanguage: false,
     vueI18n: './i18n/i18n.config.ts',
   },
 });

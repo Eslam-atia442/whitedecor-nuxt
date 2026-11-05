@@ -45,7 +45,22 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Governorate & City -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold uppercase tracking-wider text-ink-secondary">
+          {{ $t('governorate') }} <span class="text-error">*</span>
+        </label>
+        <select
+          v-model="store.form.governorate"
+          class="w-full rounded-2xl border border-mist bg-card px-4 py-3 text-sm font-semibold text-ink transition focus:border-gold focus:outline-none"
+        >
+          <option v-for="gov in EGYPT_GOVERNORATES" :key="gov.id" :value="gov.id">
+            {{ isAr ? gov.nameAr : gov.nameEn }} ({{ $t('shipping_cost') }}: {{ gov.shippingFee }} {{ $t('egp') }})
+          </option>
+        </select>
+      </div>
+
       <UiInput
         v-model="store.form.city"
         :label="$t('city')"
@@ -53,7 +68,9 @@
         :error="store.fieldErrors.city?.[0]"
         @input="store.clearFieldError('city')"
       />
+    </div>
 
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <UiInput
         v-model="store.form.building"
         :label="$t('building_no')"
@@ -81,7 +98,10 @@
 <script setup lang="ts">
 import { useCheckoutStore } from '~/stores/checkout';
 import { useAddressStore } from '~/stores/address';
+import { EGYPT_GOVERNORATES } from '~/constants/governorates';
 
 const store = useCheckoutStore();
 const addressStore = useAddressStore();
+const { locale } = useI18n();
+const isAr = computed(() => locale.value === 'ar');
 </script>

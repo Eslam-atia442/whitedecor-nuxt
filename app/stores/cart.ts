@@ -1,18 +1,14 @@
 // stores/cart.ts
 import { defineStore } from 'pinia';
 import { toast } from 'vue-sonner';
+import { AUTH_COOKIE_OPTIONS } from '~/constants/auth_cookie';
 import type { CartDto, CartItemDto, CartApiResponse } from '~/types/cart';
 import type { CouponDto } from '~/types/checkout';
 import type { ProductDto } from '~/types/product';
 
 export const useCartStore = defineStore('cart', () => {
   const api = useApi();
-  const cartToken = useCookie<string | null>('wd_cart_token', {
-    default: () => null,
-    maxAge: 60 * 60 * 24 * 30,
-    sameSite: 'lax',
-    path: '/',
-  });
+  const cartToken = useCookie<string | null>('wd_cart_token', AUTH_COOKIE_OPTIONS);
 
   const getT = (key: string, fallback = ''): string => {
     try {

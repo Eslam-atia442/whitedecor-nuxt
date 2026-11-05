@@ -2,7 +2,7 @@
   <div class="pointer-events-none absolute inset-0 z-30" dir="ltr">
     <button
       type="button"
-      class="hero-arrow hero-arrow-prev"
+      class="hero-arrow hero-arrow-prev hidden sm:flex"
       :aria-label="$t('home_prev_slide')"
       @click="$emit('prev')"
     >
@@ -12,7 +12,7 @@
     </button>
     <button
       type="button"
-      class="hero-arrow hero-arrow-next"
+      class="hero-arrow hero-arrow-next hidden sm:flex"
       :aria-label="$t('home_next_slide')"
       @click="$emit('next')"
     >

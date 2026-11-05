@@ -8,6 +8,8 @@ import type { AddonDto } from './addon';
 import type { BrandDto } from './brand';
 import type { CategoryDto } from './category';
 
+export type ProductAddon = AddonDto;
+
 export type ProductSortOption = 'DESC' | 'ASC' | 'PRICE_ASC' | 'PRICE_DESC';
 
 export interface ProductDto {
@@ -17,6 +19,7 @@ export interface ProductDto {
   sku?: string | null;
   price?: string | null;
   final_price?: string | null;
+  old_price?: string | null;
   discount_amount?: string | null;
   is_discount_active?: boolean | number;
   discount_type?: string | null;
@@ -24,6 +27,7 @@ export interface ProductDto {
   max_discount?: string | null;
   discount_start_at?: string | null;
   discount_end_at?: string | null;
+  discount_end_date?: string | null;
   image?: string | null;
   gallery?: string[] | null;
   in_stock?: number | boolean;

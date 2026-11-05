@@ -4,7 +4,7 @@
       <!-- Total Column -->
       <div class="shrink-0">
         <span class="block text-[10px] uppercase font-bold text-ink-secondary tracking-wider">{{ $t('total') }}</span>
-        <span class="block text-base sm:text-lg font-black text-ink tracking-tight">{{ formatPrice(cartStore.total) }}</span>
+        <span class="block text-base sm:text-lg font-black text-ink tracking-tight">{{ formatPrice(finalTotal) }}</span>
       </div>
 
       <!-- Action Button -->
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { useCartStore } from '~/stores/cart';
+import { useCheckoutStore } from '~/stores/checkout';
 
 defineProps<{
   isSubmitting?: boolean;
@@ -35,5 +36,10 @@ defineEmits<{
 }>();
 
 const cartStore = useCartStore();
+const checkoutStore = useCheckoutStore();
 const { formatPrice } = usePriceFormatter();
+
+const finalTotal = computed(() => {
+  return Math.max(0, cartStore.subtotal - cartStore.discount + checkoutStore.shippingFee);
+});
 </script>

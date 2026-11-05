@@ -1,6 +1,7 @@
 // [FLUTTER CONCEPT]: HomeScreen initState fetching categories + products + banners
 
 import { reuseHydrationPayload } from '~/utils/hydration';
+import type { ProductDto } from '~/types/product';
 
 export const useHomeData = async () => {
   const homeStore = useHomeStore();
@@ -44,6 +45,31 @@ export const useHomeData = async () => {
     await query;
   }
 
+  const spotlightProducts = computed<ProductDto[]>(() => {
+    if (homeStore.discounted.length > 0) return homeStore.discounted;
+    if (homeStore.topSold.length > 0) return homeStore.topSold;
+    return homeStore.newest;
+  });
+
+  const catalogList = computed<ProductDto[]>(() => {
+    const map = new Map<number, ProductDto>();
+    for (const p of [...homeStore.newest, ...homeStore.topSold, ...homeStore.discounted]) {
+      if (p && p.id && !map.has(p.id)) {
+        map.set(p.id, p);
+      }
+    }
+    return Array.from(map.values());
+  });
+
+  const chosenSeed = computed(() => {
+    return (
+      homeStore.newest.length * 31 +
+      homeStore.topSold.length * 17 +
+      homeStore.discounted.length * 7 +
+      (homeStore.newest[0]?.id || 0)
+    );
+  });
+
   return {
     sliders: computed(() => homeStore.sliders),
     newest: computed(() => homeStore.newest),
@@ -51,6 +77,9 @@ export const useHomeData = async () => {
     topSold: computed(() => homeStore.topSold),
     categories: computed(() => categoriesStore.rootCategories),
     brands: computed(() => brandsStore.brands),
+    spotlightProducts,
+    catalogList,
+    chosenSeed,
     isPending,
     isError,
     isEmpty,

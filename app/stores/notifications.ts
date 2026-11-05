@@ -35,6 +35,13 @@ export const useNotificationsStore = defineStore('notifications', () => {
   const hasMore = computed(() => pagination.value.current_page < pagination.value.last_page);
 
   const fetch = async (force = false) => {
+    const authStore = useAuthStore();
+    if (!authStore.isAuthenticated) {
+      items.value = [];
+      unreadCount.value = 0;
+      status.value = 'idle';
+      return;
+    }
     if (status.value === 'loading' && !force) return;
     status.value = 'loading';
     errorMessage.value = null;
@@ -83,6 +90,11 @@ export const useNotificationsStore = defineStore('notifications', () => {
   };
 
   const fetchUnreadCount = async () => {
+    const authStore = useAuthStore();
+    if (!authStore.isAuthenticated) {
+      unreadCount.value = 0;
+      return;
+    }
     try {
       const res = await api.get<{ data?: { unread_count?: number } }>(
         API_ENDPOINTS.NOTIFICATIONS.UNREAD_COUNT,

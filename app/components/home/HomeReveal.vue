@@ -17,9 +17,12 @@ onMounted(() => {
   }
   io = new IntersectionObserver(
     ([entry]) => {
-      visible.value = Boolean(entry?.isIntersecting);
+      if (entry?.isIntersecting) {
+        visible.value = true;
+        if (el.value && io) io.unobserve(el.value);
+      }
     },
-    { threshold: 0.1, rootMargin: '0px 0px -6% 0px' },
+    { threshold: 0.05, rootMargin: '50px 0px 50px 0px' },
   );
   io.observe(el.value);
 });

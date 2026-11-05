@@ -30,7 +30,6 @@
           :has-discount="hasActiveDiscount"
           :discount-percent="discountPercentage"
         />
-        <ProductPerksBar />
         <ProductAddonsPreview
           v-if="product.addons?.length"
           :addons="product.addons"

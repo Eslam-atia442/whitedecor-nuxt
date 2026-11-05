@@ -50,7 +50,7 @@ const navItems: NavItemConfig[] = [
   { key: 'home', labelKey: 'home', route: '/', icon: '', activeIcon: '' },
   { key: 'products', labelKey: 'all_products', route: '/products', icon: '', activeIcon: '' },
   { key: 'cart', labelKey: 'cart', route: '/cart', icon: '', activeIcon: '', badgeKey: 'cart' },
-  { key: 'orders', labelKey: 'my_orders', route: '/orders', icon: '', activeIcon: '', badgeKey: 'orders', requiresAuth: true, authFallbackRoute: '/register?redirect=/orders' },
+  { key: 'orders', labelKey: 'my_orders', route: '/orders', icon: '', activeIcon: '', badgeKey: 'orders' },
   { key: 'profile', labelKey: 'profile', route: '/profile', icon: '', activeIcon: '', requiresAuth: true, authFallbackRoute: '/login?redirect=/profile' },
 ];
 </script>

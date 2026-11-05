@@ -1,16 +1,19 @@
 <template>
   <div
-    class="sm:hidden"
+    class="sm:hidden select-none cursor-grab active:cursor-grabbing"
+    style="touch-action: pan-y;"
     @mouseenter="paused = true"
     @mouseleave="paused = false"
-    @touchstart.passive="onTouchStart"
-    @touchend.passive="onTouchEnd"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerCancel"
+    @click.capture="onClickCapture"
   >
-    <div class="overflow-x-hidden px-0.5 pb-1 touch-pan-x">
+    <div class="overflow-x-hidden px-0.5 pb-1">
       <div
-        dir="ltr"
         class="flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
-        :style="{ transform: `translate3d(${-index * 100}%, 0, 0)` }"
+        :style="{ transform: `translate3d(${isRtl ? index * 100 : -index * 100}%, 0, 0)` }"
       >
         <div
           v-for="(page, i) in pages"
@@ -38,8 +41,9 @@
 import type { ProductDto } from '~/types/product';
 
 const PAGE_SIZE = 4;
-
 const props = defineProps<{ products: ProductDto[] }>();
+const { locale } = useI18n();
+const isRtl = computed(() => locale.value === 'ar');
 
 const pages = computed(() => {
   const chunks: ProductDto[][] = [];
@@ -49,8 +53,14 @@ const pages = computed(() => {
   return chunks;
 });
 
-const { index, paused, go, onTouchStart, onTouchEnd } = useBannerSlider(
-  () => pages.value.length,
-  4500,
-);
+const {
+  index,
+  paused,
+  go,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  onClickCapture,
+} = useBannerSlider(() => pages.value.length, 4500);
 </script>

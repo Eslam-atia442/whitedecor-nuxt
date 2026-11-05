@@ -11,45 +11,39 @@
     </div>
 
     <div class="space-y-3 text-xs sm:text-sm">
-      <!-- Original Price (if offers existed) -->
-      <div v-if="offerSavings > 0" class="flex items-center justify-between gap-4 text-ink-secondary">
-        <span>{{ $t('price_before_discounts') }}</span>
-        <span class="font-medium line-through text-ink-secondary whitespace-nowrap">
-          {{ originalSubtotal.toFixed(2) }} {{ $t('egp') }}
-        </span>
-      </div>
-
-      <!-- Product Offers Discount -->
-      <div v-if="offerSavings > 0" class="flex items-center justify-between gap-4 text-emerald-600 font-bold">
-        <span>{{ $t('offers_discount_saved') }}</span>
-        <span class="whitespace-nowrap">-{{ offerSavings.toFixed(2) }} {{ $t('egp') }}</span>
-      </div>
-
       <!-- Subtotal -->
       <div class="flex items-center justify-between gap-4 text-ink-secondary">
         <span class="font-medium">{{ $t('subtotal') }}</span>
         <span class="font-bold text-ink whitespace-nowrap">
-          {{ order.subtotal || order.total || '0' }} {{ $t('egp') }}
+          {{ formatPrice(subtotalNum) }}
         </span>
       </div>
 
-      <!-- Coupon Discount Amount -->
+      <!-- Coupon Discount Amount & Pill -->
       <div
-        v-if="couponDiscount && Number(couponDiscount) > 0"
-        class="flex items-center justify-between gap-4 text-emerald-600 font-bold"
+        v-if="couponDiscountNum > 0"
+        class="flex items-center justify-between gap-4 text-success font-bold"
       >
-        <span class="flex items-center gap-1">
+        <span class="flex items-center gap-1.5">
           <span class="material-symbols-rounded text-sm">local_offer</span>
-          <span>{{ $t('discount') }}</span>
+          <span>{{ $t('coupon_discount') }}</span>
+          <span
+            v-if="couponCode"
+            class="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-mono uppercase font-bold"
+          >
+            {{ couponCode }}
+          </span>
         </span>
-        <span class="whitespace-nowrap">-{{ couponDiscount }} {{ $t('egp') }}</span>
+        <span class="whitespace-nowrap">-{{ formatPrice(couponDiscountNum) }}</span>
       </div>
 
-      <!-- Coupon Code Chip -->
-      <div v-if="couponCode" class="flex items-center justify-between gap-4 text-gold text-xs font-bold bg-gold/10 p-2.5 rounded-xl border border-gold/20">
+      <div
+        v-else-if="couponCode"
+        class="flex items-center justify-between gap-4 text-gold text-xs font-bold bg-gold/10 p-2.5 rounded-xl border border-gold/20"
+      >
         <span class="flex items-center gap-1.5">
           <span class="material-symbols-rounded text-sm">confirmation_number</span>
-          <span>{{ $t('step_coupon') }}</span>
+          <span>{{ $t('coupon_code') }}</span>
         </span>
         <span class="font-mono bg-card px-2.5 py-0.5 rounded-md border border-gold/30 text-ink">
           {{ couponCode }}
@@ -59,7 +53,12 @@
       <!-- Shipping -->
       <div class="flex items-center justify-between gap-4 text-ink-secondary">
         <span class="font-medium">{{ $t('shipping_cost') }}</span>
-        <span class="font-bold text-emerald-600 whitespace-nowrap">{{ $t('free_shipping') }}</span>
+        <span v-if="shippingCostNum > 0" class="font-bold text-ink whitespace-nowrap">
+          {{ formatPrice(shippingCostNum) }}
+        </span>
+        <span v-else class="font-bold text-success whitespace-nowrap">
+          {{ $t('free_shipping') }}
+        </span>
       </div>
 
       <!-- Grand Total -->
@@ -67,9 +66,8 @@
         <span class="text-base font-black text-ink">{{ $t('total') }}</span>
         <div class="text-end whitespace-nowrap">
           <span class="text-2xl font-black text-gold">
-            {{ order.total || order.subtotal || '0' }}
+            {{ formatPrice(totalNum) }}
           </span>
-          <span class="text-xs font-bold text-gold ms-1">{{ $t('egp') }}</span>
         </div>
       </div>
     </div>
@@ -83,28 +81,35 @@ const props = defineProps<{
   order: OrderDto;
 }>();
 
+const { formatPrice, parsePrice } = usePriceFormatter();
+
 const couponCode = computed(() => {
-  return props.order.coupon_num || props.order.coupon?.coupon_num || null;
+  return (
+    props.order.coupon_num ||
+    props.order.coupon?.coupon_num ||
+    (props.order as any).coupon_code ||
+    null
+  );
 });
 
-const couponDiscount = computed(() => {
-  return props.order.discount_amount || props.order.coupon?.discount_amount || null;
+const couponDiscountNum = computed(() => {
+  const d =
+    props.order.discount_amount ??
+    (props.order as any).coupon_discount ??
+    props.order.coupon?.discount_amount;
+  return parsePrice(d);
 });
 
-const originalSubtotal = computed(() => {
-  if (!props.order.items || props.order.items.length === 0) return 0;
-  return props.order.items.reduce((sum, item) => {
-    const origPrice = parseFloat(String(item.product?.price || item.unit_price || '0')) || 0;
-    return sum + origPrice * (item.quantity || 1);
-  }, 0);
+const subtotalNum = computed(() => {
+  return parsePrice(props.order.subtotal || props.order.total);
 });
 
-const orderSubtotalNum = computed(() => {
-  return parseFloat(String(props.order.subtotal || props.order.total || '0')) || 0;
+const shippingCostNum = computed(() => {
+  const s = (props.order as any).shipping_cost || (props.order as any).shipping_fee;
+  return parsePrice(s);
 });
 
-const offerSavings = computed(() => {
-  if (originalSubtotal.value <= orderSubtotalNum.value) return 0;
-  return Math.max(0, originalSubtotal.value - orderSubtotalNum.value);
+const totalNum = computed(() => {
+  return parsePrice(props.order.total || props.order.subtotal);
 });
 </script>

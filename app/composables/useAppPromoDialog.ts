@@ -1,6 +1,6 @@
 const PROMO_COOKIE = 'wd_app_promo_seen';
 const PROMO_TTL = 60 * 60 * 24 * 60;
-const REVEAL_DELAY_MS = 800;
+const REVEAL_DELAY_MS = 25000;
 
 export const useAppPromoDialog = () => {
   const settingsStore = useSettingsStore();

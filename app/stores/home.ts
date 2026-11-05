@@ -57,8 +57,8 @@ export const useHomeStore = defineStore('home', () => {
 
     const results = await Promise.allSettled([
       fetchList<SliderDto>(API_ENDPOINTS.CATALOG.SLIDERS, { active: true }),
-      fetchList<ProductDto>(API_ENDPOINTS.CATALOG.PRODUCTS_NEWEST, { limit: 50 }),
-      fetchList<ProductDto>(API_ENDPOINTS.CATALOG.PRODUCTS_DISCOUNTED, { limit: 50 }),
+      fetchList<ProductDto>(API_ENDPOINTS.CATALOG.PRODUCTS_NEWEST, { limit: 10 }),
+      fetchList<ProductDto>(API_ENDPOINTS.CATALOG.PRODUCTS_DISCOUNTED, { limit: 10 }),
       fetchList<ProductDto>(API_ENDPOINTS.CATALOG.PRODUCTS_TOP_SOLD, { limit: 12 }),
     ]);
 

@@ -142,9 +142,24 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const initSettings = async () => {
     await Promise.allSettled([fetchSettings(), fetchCountries()]);
+    try {
+      const route = useRoute();
+      const splash = String(route.query.splash || '');
+      if (splash === '1' || splash === 'freeze' || splash === 'dev' || route.query.freeze === '1') {
+        isSplashActive.value = true;
+        return;
+      }
+    } catch {
+      // route not ready
+    }
     if (splashCookie.value === 'seen') {
       isSplashActive.value = false;
     }
+  };
+
+  const resetSplash = () => {
+    splashCookie.value = null;
+    isSplashActive.value = true;
   };
 
   const selectCountry = (country: CountryDto) => {
@@ -197,6 +212,7 @@ export const useSettingsStore = defineStore('settings', () => {
     selectCountry,
     setTheme,
     dismissSplash,
+    resetSplash,
     checkMaintenanceStatus,
   };
 });

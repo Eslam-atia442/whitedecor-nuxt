@@ -20,7 +20,7 @@
       <div
         v-if="product.discount_end_at && hasDiscount"
         class="absolute z-30"
-        :class="timerSize === 'lg' ? 'inset-x-2 top-2' : 'inset-x-1.5 top-1.5'"
+        :class="timerSize === 'lg' ? 'start-2 top-2' : 'start-1.5 top-1.5'"
       >
         <ProductCardTimer :end-at="product.discount_end_at" :size="timerSize" />
       </div>
@@ -119,7 +119,9 @@
                 <del class="text-[11px] text-ink-secondary/60 font-medium">
                   {{ formatPrice(product.price) }}
                 </del>
-                <UiDiscountBadge :percent="discountPercent" size="sm" />
+                <span class="text-[11px] font-bold text-coral">
+                  {{ locale === 'ar' ? `خصم ${discountPercent}%` : `${discountPercent}% off` }}
+                </span>
               </template>
             </div>
           </div>
@@ -144,7 +146,7 @@ const { localize } = useLocalizedPath();
 const href = computed(() => localize(productPath(props.product)));
 const { formatPrice, parsePrice } = usePriceFormatter();
 const wishlistStore = useWishlistStore();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const isFav = computed(() => wishlistStore.isFavorite(props.product.id));
 const isInStock = computed(() => Boolean(props.product.in_stock === 1 || props.product.in_stock === true || String(props.product.in_stock) === '1'));

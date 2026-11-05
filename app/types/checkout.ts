@@ -62,6 +62,7 @@ export interface CheckoutFormState {
   name: string;
   phone: string;
   countryId: string;
+  governorate?: string;
   city?: string;
   address: string;
   building?: string;

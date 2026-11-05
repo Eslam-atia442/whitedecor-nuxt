@@ -28,7 +28,7 @@ defineProps<{
 }>();
 
 const staggerClass = (index: number) => {
-  const steps = ['mt-0', 'mt-8 sm:mt-12', 'mt-3 sm:mt-6', 'mt-10 sm:mt-16'];
+  const steps = ['mt-0', 'sm:mt-8 lg:mt-10', 'sm:mt-3 lg:mt-5', 'sm:mt-10 lg:mt-14'];
   return steps[index % 4];
 };
 </script>

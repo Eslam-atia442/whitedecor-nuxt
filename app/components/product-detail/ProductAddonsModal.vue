@@ -26,7 +26,7 @@
         </label>
         <div class="space-y-2">
           <div
-            v-for="addon in addons"
+            v-for="addon in sortedAddons"
             :key="addon.id"
             class="flex items-center justify-between rounded-xl border p-3.5 transition-colors cursor-pointer"
             :class="selectedIds.includes(addon.id) ? 'border-gold bg-gold/5' : 'border-mist bg-card hover:bg-surface'"
@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import type { AddonDto } from '~/types/addon';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean;
   addons: AddonDto[];
   selectedIds: number[];
@@ -83,4 +83,12 @@ defineEmits<{
 }>();
 
 const { formatPrice } = usePriceFormatter();
+
+const sortedAddons = computed(() => {
+  return [...props.addons].sort((a, b) => {
+    if (a.is_free && !b.is_free) return -1;
+    if (!a.is_free && b.is_free) return 1;
+    return (Number(a.price) || 0) - (Number(b.price) || 0);
+  });
+});
 </script>

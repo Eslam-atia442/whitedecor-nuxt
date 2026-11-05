@@ -22,9 +22,19 @@
         </NuxtLink>
       </div>
 
-      <UiBadge :variant="isInStock ? 'green' : 'mist'" size="md">
-        {{ isInStock ? $t('in_stock') : $t('out_of_stock') }}
-      </UiBadge>
+      <!-- Modern Minimalist Stock Status -->
+      <div class="inline-flex items-center gap-2 select-none">
+        <span
+          class="size-2 rounded-full shrink-0"
+          :class="isInStock ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50 animate-pulse' : 'bg-neutral-400'"
+        />
+        <span
+          class="text-xs font-bold tracking-wide font-cairo"
+          :class="isInStock ? 'text-emerald-700 dark:text-emerald-400' : 'text-neutral-500'"
+        >
+          {{ isInStock ? $t('in_stock') : $t('out_of_stock') }}
+        </span>
+      </div>
     </div>
 
     <!-- Product Title -->

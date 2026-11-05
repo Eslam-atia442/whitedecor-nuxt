@@ -4,7 +4,7 @@
       <NuxtPage />
     </NuxtLayout>
     <ClientOnly>
-      <Toaster position="top-center" :close-button="true" :rich-colors="true" :dir="currentDir" />
+      <Toaster position="top-center" :close-button="false" :rich-colors="false" :dir="currentDir" :duration="3000" />
     </ClientOnly>
   </div>
 </template>
@@ -38,5 +38,10 @@ watch(
 useAppSettings();
 const settingsStore = useSettingsStore();
 
-await useAsyncData('app-settings', () => settingsStore.initSettings());
+await useAsyncData('app-settings', async () => {
+  if (!settingsStore.appSettings) {
+    await settingsStore.initSettings();
+  }
+  return true;
+});
 </script>

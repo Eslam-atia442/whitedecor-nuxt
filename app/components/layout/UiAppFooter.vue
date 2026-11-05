@@ -1,17 +1,25 @@
 <template>
-  <footer class="hidden border-t border-mist/30 navy-gradient text-surface lg:block">
-    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr_1.1fr]">
-        <div class="space-y-5">
+  <footer class="hidden border-t border-white/10 navy-gradient text-surface py-16 lg:block">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.1fr]">
+        <!-- Brand & Vision -->
+        <div class="space-y-4">
           <UiLogo inverted />
-          <p class="max-w-xs text-sm leading-relaxed text-surface/75">{{ tagline }}</p>
-          <UiSocialLinks />
-          <UiStoreBadges />
+          <p class="max-w-sm text-sm leading-relaxed text-surface/75 font-cairo">
+            {{ tagline }}
+          </p>
+          <UiSocialLinks class="pt-1" />
+          <div class="pt-2">
+            <UiStoreBadges />
+          </div>
         </div>
 
+        <!-- Shop Navigation -->
         <div class="space-y-4">
-          <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-gold">{{ $t('footer_shop') }}</h3>
-          <nav class="space-y-2.5 text-sm text-surface/80">
+          <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-gold font-cairo">
+            {{ $t('footer_shop') }}
+          </h3>
+          <nav class="space-y-2.5 text-sm text-surface/80 font-cairo">
             <NuxtLink :to="localize('/products')" class="block transition hover:text-gold">{{ $t('all_products') }}</NuxtLink>
             <NuxtLink :to="localize('/categories')" class="block transition hover:text-gold">{{ $t('all_categories') }}</NuxtLink>
             <NuxtLink :to="localize('/brands')" class="block transition hover:text-gold">{{ $t('brands') }}</NuxtLink>
@@ -26,9 +34,12 @@
           </nav>
         </div>
 
+        <!-- About & Legal -->
         <div class="space-y-4">
-          <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-gold">{{ $t('legal.about_us') }}</h3>
-          <nav class="space-y-2.5 text-sm text-surface/80">
+          <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-gold font-cairo">
+            {{ $t('legal.about_us') }}
+          </h3>
+          <nav class="space-y-2.5 text-sm text-surface/80 font-cairo">
             <NuxtLink :to="localize('/about')" class="block transition hover:text-gold">{{ $t('legal.about_us') }}</NuxtLink>
             <NuxtLink :to="localize('/sitemap')" class="block transition hover:text-gold">{{ $t('sitemap_title') }}</NuxtLink>
             <NuxtLink :to="localize('/terms')" class="block transition hover:text-gold">{{ $t('legal.terms_conditions') }}</NuxtLink>
@@ -36,33 +47,39 @@
           </nav>
         </div>
 
+        <!-- Contact & Support -->
         <div class="space-y-4">
-          <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-gold">{{ $t('legal.contact_us') }}</h3>
-          <div class="space-y-3 text-sm text-surface/80">
-            <a v-if="phone" :href="`tel:${phone}`" class="flex items-center gap-2 transition hover:text-gold" dir="ltr">
-              <span class="material-symbols-rounded text-gold">call</span>
-              <span>{{ phone }}</span>
+          <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-gold font-cairo">
+            {{ $t('legal.contact_us') }}
+          </h3>
+          <div class="space-y-3 text-sm text-surface/80 font-cairo">
+            <a v-if="phone" :href="`tel:${phone}`" class="flex items-center gap-2.5 transition hover:text-gold">
+              <span class="material-symbols-rounded text-gold shrink-0">call</span>
+              <span dir="ltr" class="tabular-nums font-semibold">{{ phone }}</span>
             </a>
             <a
               v-if="whatsapp"
               :href="`https://wa.me/${whatsapp}`"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-3 py-2 font-bold text-white transition hover:brightness-110"
+              class="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-3.5 py-2 font-bold text-white shadow-xs transition hover:brightness-110 active:scale-95"
             >
               <iconify-icon icon="simple-icons:whatsapp" class="text-lg" />
               <span>{{ $t('whatsapp_support') }}</span>
             </a>
-            <a v-if="email" :href="`mailto:${email}`" class="flex items-center gap-2 transition hover:text-gold">
-              <span class="material-symbols-rounded text-gold">mail</span>
-              <span>{{ email }}</span>
+            <a v-if="email" :href="`mailto:${email}`" class="flex items-center gap-2.5 transition hover:text-gold">
+              <span class="material-symbols-rounded text-gold shrink-0">mail</span>
+              <span dir="ltr" class="font-medium">{{ email }}</span>
             </a>
           </div>
         </div>
       </div>
-      <p class="mt-12 border-t border-white/10 pt-6 text-center text-xs text-surface/55">
-        © {{ year }} {{ settingsStore.appName }}. {{ $t('footer_rights') }}
-      </p>
+
+      <!-- Bottom Bar -->
+      <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-center text-xs text-surface/55 sm:flex-row font-cairo">
+        <p>© {{ year }} {{ settingsStore.appName }}. {{ $t('footer_rights') }}</p>
+        <p class="text-surface/40">صُنع بحب في مصر 🇪🇬</p>
+      </div>
     </div>
   </footer>
 </template>

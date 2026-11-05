@@ -1,12 +1,16 @@
 <template>
   <section
-    class="relative w-full overflow-hidden"
+    class="relative w-full overflow-hidden select-none cursor-grab active:cursor-grabbing"
+    style="touch-action: pan-y;"
     @mouseenter="paused = true"
     @mouseleave="paused = false"
-    @touchstart.passive="onTouchStart"
-    @touchend.passive="onTouchEnd"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerCancel"
+    @click.capture="onClickCapture"
   >
-    <div class="relative h-[58vh] min-h-[420px] w-full sm:h-[64vh] lg:h-[78vh]">
+    <div class="relative h-[46vh] min-h-[320px] w-full sm:h-[60vh] lg:h-[72vh]">
       <HomeHeroSlide
         v-for="(slide, i) in slides"
         :key="slide.id"
@@ -29,8 +33,16 @@
 import type { SliderDto } from '~/types/home';
 
 const props = defineProps<{ slides: SliderDto[] }>();
-const { index, paused, next, prev, go, onTouchStart, onTouchEnd } = useBannerSlider(
-  () => props.slides.length,
-  5000,
-);
+const {
+  index,
+  paused,
+  next,
+  prev,
+  go,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  onClickCapture,
+} = useBannerSlider(() => props.slides.length, 3200);
 </script>

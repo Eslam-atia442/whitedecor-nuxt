@@ -8,8 +8,10 @@
     "sync-build": "node scripts/sync-build.mjs",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "deploy": "node scripts/deploy.mjs",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
+    "convert:webp": "node scripts/convert-to-webp.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
