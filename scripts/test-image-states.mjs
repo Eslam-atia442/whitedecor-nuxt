@@ -68,3 +68,4 @@ testImageStates().catch((err) => {
   console.error('Error state test error:', err);
   process.exit(1);
 });
+

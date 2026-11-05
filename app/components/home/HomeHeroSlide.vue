@@ -23,8 +23,8 @@
     <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent pointer-events-none" />
     <div class="absolute inset-0 bg-gradient-to-r rtl:bg-gradient-to-l from-navy/85 via-navy/40 to-transparent pointer-events-none" />
 
-    <div class="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-16 sm:px-8 sm:pb-20 lg:justify-center lg:pb-0">
-      <div class="max-w-2xl space-y-3 sm:space-y-4 text-surface">
+    <div class="absolute inset-0 z-10 mx-auto flex max-w-7xl flex-col justify-end px-5 pb-16 sm:px-8 sm:pb-20 lg:justify-center lg:pb-0 pointer-events-none">
+      <div class="max-w-2xl space-y-3 sm:space-y-4 text-surface pointer-events-auto">
         <!-- Headline with Scale Zoom & Fade -->
         <component
           :is="active ? 'h1' : 'p'"

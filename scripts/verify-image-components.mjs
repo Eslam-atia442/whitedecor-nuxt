@@ -78,3 +78,4 @@ async function verifyImageComponents() {
 }
 
 verifyImageComponents().catch(console.error);
+

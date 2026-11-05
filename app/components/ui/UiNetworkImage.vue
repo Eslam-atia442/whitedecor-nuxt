@@ -1,7 +1,12 @@
 <template>
   <div
-    class="relative overflow-hidden flex items-center justify-center select-none"
-    :class="[wrapperClass, rounded || 'rounded-inherit', aspect]"
+    class="overflow-hidden flex items-center justify-center select-none"
+    :class="[
+      isAbsolute ? 'absolute' : 'relative',
+      wrapperClass,
+      rounded || 'rounded-inherit',
+      aspect,
+    ]"
   >
     <!-- 1. LOADING SKELETON & SPINNER -->
     <div
@@ -85,6 +90,8 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{ (e: 'load', ev: Event): void; (e: 'error', ev: Event | string): void }>();
+const attrs = useAttrs();
+const isAbsolute = computed(() => String(attrs.class || '').includes('absolute'));
 
 const { imgRef, isLoaded, hasError, isLoading, normalizedSrc, fitClass, onLoad, onError } =
   useNetworkImage({

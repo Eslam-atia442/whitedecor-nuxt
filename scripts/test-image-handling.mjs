@@ -65,3 +65,4 @@ testImageHandling().catch((err) => {
   console.error('Test error:', err);
   process.exit(1);
 });
+
